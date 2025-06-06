@@ -13,6 +13,7 @@ class Talent extends Model
     protected $table = 'talent';
 
     protected $fillable = [
+        'username',
         'name',
         'job_title',
         'description',

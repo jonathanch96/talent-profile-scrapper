@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('talent', function (Blueprint $table) {
             $table->id();
+            $table->string('username')->unique();
             $table->string('name');
             $table->string('job_title');
             $table->text('description');

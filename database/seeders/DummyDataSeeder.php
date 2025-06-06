@@ -20,6 +20,7 @@ class DummyDataSeeder extends Seeder
     {
         Talent::create([
             'id' => 1,
+            'username' => 'rizkyoctavianus',
             'name' => 'Rizky Octavianus',
             'job_title' => 'Video Editor',
             'description' => 'HI, I\'M A SENIOR MOTION AND VIDEO EDITOR WITH 5 YEARS OF EXPERIENCE IN VIDEO EDITING, MOTION GRAPHICS, GRAPHIC DESIGN, AND PHOTO EDITING. I ENJOY CREATING VISUALLY ENGAGING CONTENT AND TURNING IDEAS INTO POLISHED, PROFESSIONAL VISUALS.',
