@@ -19,12 +19,11 @@ return new class extends Migration
             $table->string('image');
             $table->string('location');
             $table->string('timezone');
-            $table->string('status');
-            $table->json('projects')->nullable();
-            $table->json('experiences')->nullable();
-            $table->json('availability')->nullable();
+            $table->string('talent_status')->comment('Open To Work, Not Open To Work, Not Available');
+            $table->string('availability')->nullable()->comment('Full Time, Part Time, Freelance');
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
