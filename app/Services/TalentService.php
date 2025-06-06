@@ -64,19 +64,30 @@ class TalentService
             $talent->update($talentFields);
         }
 
+        // Track if we need to update vector embeddings
+        $needsVectorUpdate = false;
+
         // Update experiences
         if (isset($data['experiences'])) {
             $this->updateTalentExperiences($talent, $data['experiences']);
+            $needsVectorUpdate = true;
         }
 
         // Update projects
         if (isset($data['projects'])) {
             $this->updateTalentProjects($talent, $data['projects']);
+            $needsVectorUpdate = true;
         }
 
         // Update details (contents)
         if (isset($data['details'])) {
             $this->updateTalentDetails($talent, $data['details']);
+            $needsVectorUpdate = true;
+        }
+
+        // Dispatch vector update job if relationships changed
+        if ($needsVectorUpdate) {
+            \App\Jobs\UpdateVectorEmbeddingJob::dispatch($talent);
         }
 
         return $talent->fresh();

@@ -449,4 +449,46 @@ class OpenAIService
             return null;
         }
     }
+
+    /**
+     * Generate embedding vector for text using OpenAI
+     *
+     * @param string $text
+     * @return array|null
+     * @throws Exception
+     */
+    public function generateEmbedding(string $text): ?array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(60)
+            ->post($this->baseUrl . '/embeddings', [
+                'model' => 'text-embedding-3-small',
+                'input' => $text,
+                'encoding_format' => 'float'
+            ]);
+
+            if (!$response->successful()) {
+                throw new Exception("OpenAI Embedding API error: {$response->status()} - {$response->body()}");
+            }
+
+            $result = $response->json();
+
+            if (isset($result['data'][0]['embedding'])) {
+                return $result['data'][0]['embedding'];
+            }
+
+            throw new Exception("Invalid embedding response format");
+
+        } catch (Exception $e) {
+            Log::error('OpenAI Embedding Error', [
+                'message' => $e->getMessage(),
+                'text_length' => strlen($text)
+            ]);
+            throw $e;
+        }
+    }
 }
