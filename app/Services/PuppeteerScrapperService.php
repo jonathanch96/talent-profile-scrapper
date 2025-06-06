@@ -49,7 +49,7 @@ class PuppeteerScrapperService
                 'links' => $this->extractLinks($crawler, $url),
                 'images' => $this->extractImages($crawler, $url),
                 'videos' => $this->extractVideos($crawler, $url),
-                'text' => $this->extractText($crawler),
+                'text' => $this->extractText($crawler, $options),
                 'headings' => $this->extractHeadings($crawler),
                 'scraped_at' => now()->toISOString(),
                 'method' => 'puppeteer_service',
@@ -78,7 +78,8 @@ class PuppeteerScrapperService
         $defaultOptions = [
             'waitTime' => 3000,
             'waitUntil' => 'networkidle0',
-            'executeScript' => 'window.scrollTo(0, document.body.scrollHeight);'
+            'executeScript' => 'window.scrollTo(0, document.body.scrollHeight);',
+            'exclude_full_text' => true // Exclude full_text for SPA scraping
         ];
 
         $mergedOptions = array_merge($defaultOptions, $options);
@@ -443,9 +444,10 @@ class PuppeteerScrapperService
      * Extract text content from the page
      *
      * @param Crawler $crawler
+     * @param array $options
      * @return array
      */
-    protected function extractText(Crawler $crawler): array
+    protected function extractText(Crawler $crawler, array $options = []): array
     {
         $text = [];
 
@@ -479,9 +481,11 @@ class PuppeteerScrapperService
             });
             $text['lists'] = $lists;
 
-            // Extract all text content (cleaned)
-            $allText = $crawler->filter('body')->text();
-            $text['full_text'] = $this->cleanText($allText);
+            // Extract all text content (cleaned) - only if not excluded
+            if (!($options['exclude_full_text'] ?? false)) {
+                $allText = $crawler->filter('body')->text();
+                $text['full_text'] = $this->cleanText($allText);
+            }
 
         } catch (Exception $e) {
             Log::warning('Error extracting text', ['error' => $e->getMessage()]);
