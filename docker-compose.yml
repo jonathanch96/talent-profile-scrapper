@@ -24,6 +24,7 @@ services:
         container_name: "talent-profile-scrapper-horizon"
         volumes:
             - ./:/var/www/html
+            - ./docker/horizon/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
         networks:
             - talent-profile-scrapper
         depends_on:

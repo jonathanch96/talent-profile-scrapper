@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\UpdateVectorEmbeddingJob;
 use App\Models\Talent;
 use App\Models\TalentExperience;
 use App\Models\TalentProject;
@@ -57,7 +58,7 @@ class TalentService
 
         // Update main talent fields
         $talentFields = array_intersect_key($data, array_flip([
-            'name', 'job_title', 'description', 'image', 'location', 'timezone', 'talent_status', 'availability'
+            'name', 'job_title', 'description', 'image', 'location', 'timezone', 'talent_status', 'availability','website_url'
         ]));
 
         if (!empty($talentFields)) {
@@ -87,7 +88,7 @@ class TalentService
 
         // Dispatch vector update job if relationships changed
         if ($needsVectorUpdate) {
-            \App\Jobs\UpdateVectorEmbeddingJob::dispatch($talent);
+            UpdateVectorEmbeddingJob::dispatch($talent);
         }
 
         return $talent->fresh();

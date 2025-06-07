@@ -19,7 +19,7 @@ class ScrapePortfolioJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300; // 5 minutes timeout
-    public $tries = 3;
+    public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -39,48 +39,64 @@ class ScrapePortfolioJob implements ShouldQueue
             // Update talent scraping status
             $this->talent->update(['scraping_status' => 'scraping_portfolio']);
 
-            // Create or update scraping result record
-            $scrapingResult = TalentScrapingResult::updateOrCreate(
-                [
-                    'talent_id' => $this->talent->id,
-                    'website_url' => $this->talent->website_url,
-                ],
-                [
-                    'status' => 'scraping',
-                    'error_message' => null,
-                ]
-            );
-
-            // Generate unique filename for scraped data
-            $filename = "scraped_data/{$this->talent->id}_{$this->talent->username}_" . now()->timestamp . ".json";
-            $filePath = storage_path("app/{$filename}");
-
-            // Ensure directory exists
-            $directory = dirname($filePath);
-            if (!is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
-
-            // Run the scraping command
-            $exitCode = Artisan::call('scrape:portfolio', [
-                'url' => $this->talent->website_url,
-                '--output' => dirname($filePath),
+            // Create a new scraping result record for each attempt
+            $scrapingResult = TalentScrapingResult::create([
+                'talent_id' => $this->talent->id,
+                'website_url' => $this->talent->website_url,
+                'status' => 'scraping',
+                'error_message' => null,
             ]);
 
-                        if ($exitCode === 0) {
-                // Find the generated scraped data file
-                $outputDir = dirname($filePath);
-                $scrapedFiles = glob($outputDir . "/scraped_*/*_data.json");
+            Log::info("Created new scraping result record", [
+                'scraping_result_id' => $scrapingResult->id,
+                'talent_id' => $this->talent->id
+            ]);
 
-                if (empty($scrapedFiles)) {
-                    throw new \Exception("No scraped data file found in output directory");
+            // Generate organized directory structure: scraped-data/{username}/{scraping_result_id}
+            $scrapedDir = "scraped-data/{$this->talent->username}/{$scrapingResult->id}";
+            $relativePath = "{$scrapedDir}/scraped_data.json";
+
+            // Update scraping result with the path immediately
+            $scrapingResult->update([
+                'scraped_data_path' => $relativePath,
+            ]);
+
+            Log::info("Running scrape command with organized folder structure", [
+                'url' => $this->talent->website_url,
+                'output_dir' => $scrapedDir,
+                'scraping_result_id' => $scrapingResult->id
+            ]);
+
+            $exitCode = Artisan::call('scrape:portfolio', [
+                'url' => $this->talent->website_url,
+                '--output' => $scrapedDir,
+            ]);
+
+            if ($exitCode === 0) {
+                // Use Storage facade to check if file exists
+                if (!Storage::exists($relativePath)) {
+                    throw new \Exception("Scraped data file not found at expected location: {$relativePath}");
                 }
 
-                $actualScrapedFile = $scrapedFiles[0]; // Get the first (latest) file
-                $relativePath = str_replace(storage_path('app/'), '', $actualScrapedFile);
+                Log::info("Scrape command completed successfully", [
+                    'exit_code' => $exitCode,
+                    'storage_path' => $relativePath,
+                    'absolute_path' => Storage::path($relativePath),
+                    'file_size' => Storage::size($relativePath)
+                ]);
 
-                // Load and analyze scraped data for documents
-                $scrapedData = json_decode(file_get_contents($actualScrapedFile), true);
+                // Update status to processing (path was already saved earlier)
+                $scrapingResult->update([
+                    'status' => 'processing',
+                ]);
+
+                // Load and analyze scraped data for documents using Storage facade
+                $scrapedDataContent = Storage::get($relativePath);
+                $scrapedData = json_decode($scrapedDataContent, true);
+
+                if (!$scrapedData) {
+                    throw new \Exception("Failed to parse scraped JSON data");
+                }
 
                 // Extract downloadable links
                 $downloadService = new DocumentDownloadService();
@@ -89,19 +105,29 @@ class ScrapePortfolioJob implements ShouldQueue
                 // Add downloadable links to scraped data
                 $scrapedData['downloadable_links'] = $downloadableLinks;
 
-                // Save updated scraped data
-                file_put_contents($actualScrapedFile, json_encode($scrapedData, JSON_PRETTY_PRINT));
+                // Save updated scraped data using Storage facade
+                Storage::put($relativePath, json_encode($scrapedData, JSON_PRETTY_PRINT));
 
-                // Update scraping result with file path and document info
-                $scrapingResult->update([
+                // Update scraping result with final status and metadata
+                Log::info("Updating scraping result with final status", [
                     'scraped_data_path' => $relativePath,
+                    'file_size' => Storage::size($relativePath),
+                    'downloadable_links_found' => count($downloadableLinks)
+                ]);
+
+                $scrapingResult->update([
                     'status' => 'completed',
                     'metadata' => [
-                        'file_size' => filesize($actualScrapedFile),
+                        'file_size' => Storage::size($relativePath),
                         'scraped_at' => now()->toDateTimeString(),
                         'downloadable_links_found' => count($downloadableLinks),
                         'downloadable_links' => $downloadableLinks,
                     ]
+                ]);
+
+                Log::info("Scraping result updated successfully", [
+                    'id' => $scrapingResult->id,
+                    'scraped_data_path' => $scrapingResult->fresh()->scraped_data_path
                 ]);
 
                 // Update talent status and dispatch next jobs
@@ -139,6 +165,8 @@ class ScrapePortfolioJob implements ShouldQueue
             throw $e;
         }
     }
+
+
 
     /**
      * Handle a job failure.

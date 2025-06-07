@@ -106,6 +106,7 @@ class TalentController extends Controller
                 'details.*.values' => 'required_with:details|array',
                 'details.*.values.*.title' => 'required|string|max:255',
                 'details.*.values.*.icon' => 'sometimes|string',
+                'website_url' => 'sometimes|string|max:255',
             ]);
 
             $talent = $this->talentService->updateTalentByUsername($username, $validatedData);
