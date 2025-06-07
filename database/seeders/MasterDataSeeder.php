@@ -11,6 +11,7 @@ use App\Models\ProjectRole;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Mail\Mailables\Content;
+use Illuminate\Support\Facades\DB;
 
 class MasterDataSeeder extends Seeder
 {
@@ -284,5 +285,13 @@ class MasterDataSeeder extends Seeder
             'title' => 'Excel',
             'description' => 'Excel',
         ]);
+
+        // Fix PostgreSQL sequence after inserting records with explicit IDs
+        // This prevents constraint violations when the app tries to create new ContentTypeValues
+        $maxId = DB::table('content_type_values')->max('id');
+        if ($maxId) {
+            DB::select("SELECT setval(pg_get_serial_sequence('content_type_values', 'id'), ?)", [$maxId + 1]);
+            $this->command->info("Fixed content_type_values sequence: reset to " . ($maxId + 1));
+        }
     }
 }
