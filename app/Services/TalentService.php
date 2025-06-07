@@ -180,6 +180,7 @@ class TalentService
         // Update main talent fields
         $talentFields = array_intersect_key($data, array_flip([
             'name',
+            'username',
             'job_title',
             'description',
             'image',
@@ -189,6 +190,18 @@ class TalentService
             'availability',
             'website_url'
         ]));
+
+        // Only update username if provided and different from current
+        if (isset($data['username']) && $data['username'] !== $talent->username) {
+            // Check if username is already taken by another talent
+            $existingTalent = Talent::where('username', $data['username'])
+                ->where('id', '!=', $talent->id)
+                ->first();
+
+            if ($existingTalent) {
+                throw new \Exception("Username '{$data['username']}' is already taken by another talent.");
+            }
+        }
 
         if (!empty($talentFields)) {
             $talent->update($talentFields);
@@ -268,15 +281,23 @@ class TalentService
 
         // Create new projects
         foreach ($projects as $project) {
-            $talent->projects()->create([
+            $projectData = [
                 'title' => $project['title'] ?? '',
-                'description' => $project['description'] ?? '',
-                'image' => $project['image'] ?? '',
-                'link' => $project['link'] ?? '',
+                'description' => $project['description'] ?? null,
+                'image' => $project['image'] ?? null,
+                'link' => $project['link'] ?? null,
                 'views' => $project['views'] ?? 0,
                 'likes' => $project['likes'] ?? 0,
                 'project_roles' => $project['project_roles'] ?? [],
-            ]);
+            ];
+
+            // Only add experience_id if we have experiences to link to
+            $firstExperience = $talent->experiences()->first();
+            if ($firstExperience) {
+                $projectData['experience_id'] = $firstExperience->id;
+            }
+
+            $talent->projects()->create($projectData);
         }
     }
 
@@ -292,35 +313,40 @@ class TalentService
             $contentTypeName = $detail['name'] ?? '';
             $values = $detail['values'] ?? [];
 
-            // Find or create content type
-            $contentType = ContentType::where('name', $contentTypeName)->first();
+            // Find content type by name (case insensitive)
+            $contentType = ContentType::whereRaw('LOWER(name) = LOWER(?)', [$contentTypeName])->first();
             if (!$contentType) {
-                continue; // Skip if content type doesn't exist
+                // Create new content type if it doesn't exist
+                $contentType = ContentType::create([
+                    'name' => $contentTypeName,
+                    'order' => 0,
+                ]);
             }
 
-            foreach ($values as $value) {
-                $valueTitle = $value['title'] ?? '';
+            foreach ($values as $valueTitle) {
+                // Handle string values directly
+                if (is_string($valueTitle) && !empty($valueTitle)) {
+                    // Find or create content type value
+                    $contentTypeValue = ContentTypeValue::where('content_type_id', $contentType->id)
+                        ->where('title', $valueTitle)
+                        ->first();
 
-                // Find or create content type value
-                $contentTypeValue = ContentTypeValue::where('content_type_id', $contentType->id)
-                    ->where('title', $valueTitle)
-                    ->first();
+                    if (!$contentTypeValue) {
+                        $contentTypeValue = ContentTypeValue::create([
+                            'content_type_id' => $contentType->id,
+                            'title' => $valueTitle,
+                            'icon' => '',
+                            'description' => '',
+                            'order' => 0,
+                        ]);
+                    }
 
-                if (!$contentTypeValue) {
-                    $contentTypeValue = ContentTypeValue::firstOrCreate([
+                    // Create talent content
+                    $talent->contents()->create([
                         'content_type_id' => $contentType->id,
-                        'title' => $valueTitle,
-                        'icon' => $value['icon'] ?? '',
-                        'description' => $value['description'] ?? '',
-                        'order' => 0,
+                        'content_type_value_id' => $contentTypeValue->id,
                     ]);
                 }
-
-                // Create talent content
-                $talent->contents()->create([
-                    'content_type_id' => $contentType->id,
-                    'content_type_value_id' => $contentTypeValue->id,
-                ]);
             }
         }
     }

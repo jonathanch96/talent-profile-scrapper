@@ -117,6 +117,7 @@ class TalentController extends Controller
             // Validate the request
             $validatedData = $request->validate([
                 'name' => 'sometimes|string|max:255',
+                'username' => 'sometimes|string|max:255',
                 'job_title' => 'sometimes|string|max:255',
                 'description' => 'sometimes|string',
                 'image' => 'sometimes|string',
@@ -133,17 +134,17 @@ class TalentController extends Controller
                 'experiences.*.description' => 'sometimes|string',
                 'projects' => 'sometimes|array',
                 'projects.*.title' => 'required_with:projects|string|max:255',
-                'projects.*.description' => 'sometimes|string',
-                'projects.*.image' => 'sometimes|string',
-                'projects.*.link' => 'sometimes|string',
-                'projects.*.views' => 'sometimes|integer|min:0',
-                'projects.*.likes' => 'sometimes|integer|min:0',
+                'projects.*.description' => 'sometimes|nullable|string',
+                'projects.*.image' => 'sometimes|nullable|string',
+                'projects.*.link' => 'sometimes|nullable|string',
+                'projects.*.views' => 'sometimes|nullable|integer|min:0',
+                'projects.*.likes' => 'sometimes|nullable|integer|min:0',
                 'projects.*.project_roles' => 'sometimes|array',
+                'projects.*.project_roles.*' => 'string|max:255',
                 'details' => 'sometimes|array',
                 'details.*.name' => 'required_with:details|string|max:255',
                 'details.*.values' => 'required_with:details|array',
-                'details.*.values.*.title' => 'required|string|max:255',
-                'details.*.values.*.icon' => 'sometimes|string',
+                'details.*.values.*' => 'string|max:255',
                 'website_url' => 'sometimes|string|max:255',
             ]);
 

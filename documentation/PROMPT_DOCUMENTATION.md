@@ -230,3 +230,100 @@ Create 3 new jobs:
     -   send again to LLM to **rank** the result from 0–100
     -   sort and return final results
 
+---
+
+-prompt: Fix the `PUT` endpoint using curl with a JSON payload that supports the following structure.
+
+The payload may include:
+- `name`
+- `username`
+- `experiences`: an array of work history
+- `projects`: an array of projects with roles
+- `details`: an array of categorized attributes like job type, skills, platforms, etc.
+
+For the `experiences`, `projects`, and `details` keys:
+- If the key exists in the payload, first clear the existing related records in the database, then insert the new values.
+- If the key is not present in the payload, leave existing records untouched (do not delete).
+
+Example payload:
+```
+{
+    "name": "Sonu Choudhary",
+    "username": "sonu-choudhary",
+    "experiences": [
+        {
+            "company": "UP10 Media",
+            "role": "Full Time",
+            "duration": "December 2023 - Present"
+        },
+        {
+            "company": "Gold Cosmetics & Skin Care",
+            "role": "Full Time",
+            "duration": "March 2022 - December 2023"
+        },
+        {
+            "company": "Marketmen Group",
+            "role": "Full Time",
+            "duration": "September 2021 - March 2022"
+        }
+    ],
+    "projects": [
+        {
+            "title": "YouTube Video",
+            "description": null,
+            "image": null,
+            "link": null,
+            "views": 5000000,
+            "likes": 0,
+            "project_roles": [
+                "Video Editor",
+                "Script Writer"
+            ]
+        }
+    ],
+    "details": [
+        {
+            "name": "Job Type",
+            "values": [
+                "Video Editor",
+                "Script Writer"
+            ]
+        },
+        {
+            "name": "Content Vertical",
+            "values": [
+                "Education",
+                "Entertainment"
+            ]
+        },
+        {
+            "name": "Platform Specialty",
+            "values": [
+                "YouTube",
+                "Instagram"
+            ]
+        },
+        {
+            "name": "Skills",
+            "values": [
+                "Video Editing",
+                "Color grading",
+                "Motion graphics",
+                "Storytelling techniques",
+                "High-retention editing style",
+                "Video post-production",
+                "AI-enhanced editing",
+                "Project Management & Workflow Optimization"
+            ]
+        },
+        {
+            "name": "Software",
+            "values": [
+                "Adobe Premiere Pro",
+                "Adobe After Effects",
+                "Adobe Photoshop"
+            ]
+        }
+    ]
+}
+```
