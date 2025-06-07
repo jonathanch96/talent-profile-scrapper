@@ -49,6 +49,9 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 300M/" "$PHP_INI_DIR/php.ini" \
     && sed -i "s/post_max_size = 8M/post_max_size = 300M/" "$PHP_INI_DIR/php.ini"
 
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chown -R $user:$user /var/www/html/storage /var/www/html/bootstrap/cache
+
 RUN chown -R $user:$user /var/www/html/storage /var/www/html/bootstrap/cache
 
 RUN chmod -R 775 vendor storage bootstrap/cache
