@@ -15,12 +15,13 @@ class TalentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $talentService = new TalentService();
+        $talentService = app(TalentService::class);
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'username' => $this->username,
+            'description' => $this->description,
             'experiences' => $this->when($this->relationLoaded('experiences'), function () {
                 return $this->experiences->map(function ($experience) {
                     return [

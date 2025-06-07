@@ -11,18 +11,138 @@ use App\Models\ContentType;
 use App\Models\ContentTypeValue;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class TalentService
 {
-    /**
-     * Get paginated talents
-     */
-    public function getAllTalents(int $perPage = 10): LengthAwarePaginator
+    protected OpenAIService $openAIService;
+
+    public function __construct(OpenAIService $openAIService)
     {
+        $this->openAIService = $openAIService;
+    }
+
+    /**
+     * Get paginated talents with optional LLM search
+     */
+    public function getAllTalents(int $perPage = 10, ?string $searchUsingLlm = null): LengthAwarePaginator
+    {
+        if ($searchUsingLlm) {
+            return $this->searchTalentsUsingLLM($searchUsingLlm, $perPage);
+        }
+
         return Talent::select(['id', 'name', 'username'])
             ->paginate($perPage);
     }
+
+    /**
+     * Search talents using LLM-powered vector search and ranking
+     */
+    private function searchTalentsUsingLLM(string $searchQuery, int $perPage): LengthAwarePaginator
+    {
+        try {
+            // Step 1: Generate embedding for the search query
+            $queryEmbedding = $this->openAIService->generateEmbedding($searchQuery);
+
+            if (!$queryEmbedding) {
+                Log::warning('Failed to generate embedding for search query', ['query' => $searchQuery]);
+                return $this->getAllTalents($perPage); // Fallback to regular search
+            }
+
+            // Step 2: Perform vector similarity search with more results than needed for ranking
+            $vectorSearchLimit = min($perPage * 3, 100); // Get 3x more results for better ranking
+            $vectorResults = $this->performVectorSearch($queryEmbedding, $vectorSearchLimit);
+
+            if (empty($vectorResults)) {
+                Log::info('No vector search results found', ['query' => $searchQuery]);
+                return new LengthAwarePaginator([], 0, $perPage, 1);
+            }
+
+            // Step 3: Get full talent data for LLM ranking
+            $talentIds = collect($vectorResults)->pluck('id')->toArray();
+            $talents = Talent::with([
+                'experiences',
+                'projects',
+                'contents.contentType',
+                'contents.contentTypeValue'
+            ])->whereIn('id', $talentIds)->get();
+
+            // Step 4: Rank results using LLM
+            $rankedResults = $this->openAIService->rankTalentsUsingLLM($searchQuery, $talents);
+
+            // Step 5: Sort by ranking and paginate
+            $sortedTalents = collect($rankedResults)
+                ->sortByDesc('ranking_score')
+                ->take($perPage)
+                ->values();
+
+            // Step 6: Create pagination
+            $currentPage = 1;
+            $total = count($rankedResults);
+
+            return new LengthAwarePaginator(
+                $sortedTalents,
+                $total,
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'pageName' => 'page']
+            );
+
+                } catch (Exception $e) {
+            Log::error('LLM search failed', [
+                'query' => $searchQuery,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Fallback to regular search (but avoid recursion)
+            return Talent::select(['id', 'name', 'username'])
+                ->paginate($perPage);
+        }
+    }
+
+    /**
+     * Perform vector similarity search using pgvector
+     */
+    private function performVectorSearch(array $queryEmbedding, int $limit): array
+    {
+        try {
+            $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
+
+            $results = DB::select("
+                SELECT id, username, name, job_title, description,
+                       (vectordb <=> ?) as distance
+                FROM talent
+                WHERE vectordb IS NOT NULL
+                ORDER BY vectordb <=> ?
+                LIMIT ?
+            ", [$embeddingString, $embeddingString, $limit]);
+
+            $processedResults = array_map(function($result) {
+                return [
+                    'id' => $result->id,
+                    'username' => $result->username,
+                    'name' => $result->name,
+                    'job_title' => $result->job_title,
+                    'description' => $result->description,
+                    'distance' => $result->distance
+                ];
+            }, $results);
+
+            return $processedResults;
+
+        } catch (Exception $e) {
+            Log::error('Vector search failed', [
+                'error' => $e->getMessage(),
+                'limit' => $limit
+            ]);
+            return [];
+        }
+    }
+
+
 
     /**
      * Get talent by username with all relationships

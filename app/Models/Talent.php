@@ -29,6 +29,10 @@ class Talent extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $hidden = [
+        'vectordb',
+    ];
+
     protected $casts = [
         'vectordb' => 'array',
     ];

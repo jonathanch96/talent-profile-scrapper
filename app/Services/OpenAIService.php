@@ -413,8 +413,6 @@ class OpenAIService
         return $mappedData;
     }
 
-
-
     /**
      * Get existing or create new ContentTypeValue
      *
@@ -496,5 +494,248 @@ class OpenAIService
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * Rank talents using LLM based on search relevance
+     *
+     * @param string $searchQuery
+     * @param \Illuminate\Database\Eloquent\Collection $talents
+     * @return array
+     * @throws Exception
+     */
+    public function rankTalentsUsingLLM(string $searchQuery, $talents): array
+    {
+        try {
+            // Convert collection to array for processing
+            $talentsArray = $talents->toArray();
+            $prompt = $this->buildTalentRankingPrompt($searchQuery, $talentsArray);
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(60)
+            ->post($this->baseUrl . '/chat/completions', [
+                'model' => $this->model,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are an expert talent matching specialist. You MUST respond with ONLY a JSON object in this exact format: {"rankings": {"id": score}}. No markdown, no explanations, just the JSON object. Analyze the search query and rank talents based on relevance, returning integer scores from 0-100.'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $prompt
+                    ]
+                ],
+                'max_tokens' => 2000,
+                'temperature' => 0.1,
+                'response_format' => ['type' => 'json_object']
+            ]);
+
+            if (!$response->successful()) {
+                throw new Exception("OpenAI API error: {$response->status()} - {$response->body()}");
+            }
+
+            $result = $response->json();
+            $content = $result['choices'][0]['message']['content'];
+
+            // Clean the content in case there's any markdown or extra text
+            $content = trim($content);
+            $content = preg_replace('/^```json\s*/', '', $content);
+            $content = preg_replace('/\s*```$/', '', $content);
+
+            $rankings = json_decode($content, true);
+
+            // Validate response format strictly
+            if (!isset($rankings['rankings']) || !is_array($rankings['rankings'])) {
+                Log::error('Invalid ranking response format', [
+                    'content' => $content,
+                    'parsed' => $rankings
+                ]);
+                throw new Exception("Invalid ranking response format - missing 'rankings' key or not an array");
+            }
+
+                        // Validate that all talent IDs are present
+            $expectedIds = array_map(fn($talent) => (string)$talent['id'], $talentsArray);
+            $receivedIds = array_keys($rankings['rankings']);
+
+            $missingIds = array_diff($expectedIds, $receivedIds);
+            if (!empty($missingIds)) {
+                Log::warning('Missing talent IDs in ranking response', [
+                    'expected' => $expectedIds,
+                    'received' => $receivedIds,
+                    'missing' => $missingIds
+                ]);
+            }
+
+            // Validate scores are integers between 0-100
+            foreach ($rankings['rankings'] as $id => $score) {
+                if (!is_numeric($score) || $score < 0 || $score > 100) {
+                    Log::warning('Invalid score in ranking response', [
+                        'talent_id' => $id,
+                        'score' => $score
+                    ]);
+                    $rankings['rankings'][$id] = max(0, min(100, (int)$score));
+                }
+            }
+
+            // Ensure we have rankings for all talents (add missing ones with score 0)
+            foreach ($talentsArray as $talent) {
+                $talentId = (string)$talent['id'];
+                if (!isset($rankings['rankings'][$talentId])) {
+                    $rankings['rankings'][$talentId] = 0;
+                    Log::warning('Missing ranking for talent, setting to 0', ['talent_id' => $talentId]);
+                }
+            }
+
+            // Apply rankings to talents
+            $rankedTalents = [];
+            foreach ($talentsArray as $talent) {
+                $talentId = (string)$talent['id'];
+                $rankingScore = $rankings['rankings'][$talentId];
+
+                $rankedTalents[] = [
+                    'id' => $talent['id'],
+                    'username' => $talent['username'],
+                    'name' => $talent['name'],
+                    'job_title' => $talent['job_title'],
+                    'description' => $talent['description'],
+                    'ranking_score' => (int)$rankingScore,
+                    'full_data' => $talent
+                ];
+            }
+
+            Log::info('LLM ranking completed', [
+                'query' => $searchQuery,
+                'talents_ranked' => count($rankedTalents),
+                'avg_score' => round(collect($rankedTalents)->avg('ranking_score'), 2)
+            ]);
+
+            return $rankedTalents;
+
+        } catch (Exception $e) {
+            Log::error('LLM ranking failed', [
+                'query' => $searchQuery,
+                'error' => $e->getMessage()
+            ]);
+
+            // Convert collection to array for fallback processing
+            $talentsArray = $talents->toArray();
+
+            // Return talents with fallback ranking
+            return array_map(function($talent, $index) {
+                return [
+                    'id' => $talent['id'],
+                    'username' => $talent['username'],
+                    'name' => $talent['name'],
+                    'job_title' => $talent['job_title'],
+                    'description' => $talent['description'],
+                    'ranking_score' => max(100 - ($index * 5), 10), // Descending scores
+                    'full_data' => $talent
+                ];
+            }, $talentsArray, array_keys($talentsArray));
+        }
+    }
+
+    /**
+     * Build prompt for LLM talent ranking with fixed format
+     *
+     * @param string $searchQuery
+     * @param array $talents
+     * @return string
+     */
+    private function buildTalentRankingPrompt(string $searchQuery, array $talents): string
+    {
+        $prompt = "**SEARCH QUERY:** \"{$searchQuery}\"\n\n";
+
+        $prompt .= "**INSTRUCTION:** Rank the following talents based on how well they match the search query. ";
+        $prompt .= "Consider job titles, skills, experience, projects, and overall relevance. ";
+        $prompt .= "Return scores from 0-100 (100 being perfect match, 0 being no relevance).\n\n";
+
+        $prompt .= "**TALENTS TO RANK:**\n";
+
+        foreach ($talents as $index => $talent) {
+            $prompt .= "**Talent ID {$talent['id']}:**\n";
+            $prompt .= "- Name: {$talent['name']}\n";
+            $prompt .= "- Job Title: " . ($talent['job_title'] ?? 'N/A') . "\n";
+            $prompt .= "- Description: " . (substr($talent['description'] ?? '', 0, 300)) . "\n";
+
+            // Add experiences
+            if (!empty($talent['experiences'])) {
+                $prompt .= "- Experience: ";
+                $experiences = array_slice($talent['experiences'], 0, 3);
+                foreach ($experiences as $exp) {
+                    $prompt .= "{$exp['job_type']} at {$exp['client_name']}; ";
+                }
+                $prompt .= "\n";
+            }
+
+            // Add skills from contents
+            if (!empty($talent['contents'])) {
+                $skills = [];
+                foreach ($talent['contents'] as $content) {
+                    if (isset($content['content_type']['name']) &&
+                        (in_array($content['content_type']['name'], ['Skills', 'Software', 'Job Type']))) {
+                        $skills[] = $content['content_type_value']['title'] ?? '';
+                    }
+                }
+                if (!empty($skills)) {
+                    $prompt .= "- Skills: " . implode(', ', array_slice(array_filter($skills), 0, 10)) . "\n";
+                }
+            }
+
+            // Add projects
+            if (!empty($talent['projects'])) {
+                $prompt .= "- Projects: ";
+                $projects = array_slice($talent['projects'], 0, 2);
+                foreach ($projects as $project) {
+                    $prompt .= "{$project['title']}; ";
+                }
+                $prompt .= "\n";
+            }
+
+            $prompt .= "\n";
+        }
+
+                $prompt .= "**REQUIRED OUTPUT FORMAT:**\n";
+        $prompt .= "You MUST return ONLY a JSON object with this EXACT structure. No additional text before or after:\n\n";
+
+        // Build exact format example
+        $prompt .= "{\n";
+        $prompt .= '  "rankings": {' . "\n";
+        foreach ($talents as $index => $talent) {
+            $prompt .= '    "' . $talent['id'] . '": ' . 'INTEGER_SCORE_0_TO_100';
+            if ($index < count($talents) - 1) {
+                $prompt .= ',';
+            }
+            $prompt .= "\n";
+        }
+        $prompt .= "  }\n";
+        $prompt .= "}\n\n";
+
+        $prompt .= "**EXAMPLE:**\n";
+        $prompt .= "{\n";
+        $prompt .= '  "rankings": {' . "\n";
+        $prompt .= '    "1": 95,' . "\n";
+        $prompt .= '    "2": 40' . "\n";
+        $prompt .= "  }\n";
+        $prompt .= "}\n\n";
+
+        $prompt .= "**RANKING CRITERIA:**\n";
+        $prompt .= "- 90-100: Perfect or near-perfect match for the search query\n";
+        $prompt .= "- 70-89: Strong match with relevant skills/experience\n";
+        $prompt .= "- 50-69: Moderate match with some relevant aspects\n";
+        $prompt .= "- 20-49: Weak match with minimal relevance\n";
+        $prompt .= "- 0-19: No meaningful relevance to search query\n\n";
+
+        $prompt .= "**CRITICAL REQUIREMENTS:**\n";
+        $prompt .= "- Return ONLY the JSON object, no markdown, no explanation, no additional text\n";
+        $prompt .= "- Use integer scores only (0-100)\n";
+        $prompt .= "- Include ALL talent IDs as strings in the rankings object\n";
+        $prompt .= "- Ensure valid JSON format\n";
+        $prompt .= "- Must have exactly this structure: {\"rankings\": {\"id\": score}}\n";
+
+        return $prompt;
     }
 }

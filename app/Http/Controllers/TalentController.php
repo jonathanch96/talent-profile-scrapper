@@ -21,15 +21,53 @@ class TalentController extends Controller
     }
 
     /**
-     * Get all talents (paginated)
+     * Get all talents (paginated) with optional LLM-powered search
      * GET /api/talents
+     *
+     * Query Parameters:
+     * - per_page: Number of results per page (default: 10)
+     * - search_using_llm: Search query for LLM-powered semantic search
+     *
+     * Examples:
+     * - GET /api/talents (regular paginated list)
+     * - GET /api/talents?per_page=20 (20 results per page)
+     * - GET /api/talents?search_using_llm=video editor with After Effects experience
+     * - GET /api/talents?search_using_llm=content creator specializing in travel vlogs&per_page=15
+     *
+     * LLM Search Process:
+     * 1. Converts search query to embedding vector
+     * 2. Performs vector similarity search against talent database
+     * 3. Ranks results using LLM (0-100 score based on relevance)
+     * 4. Returns sorted results by ranking score
      */
     public function index(Request $request): JsonResponse
     {
-        try {
+                try {
             $perPage = $request->get('per_page', 10);
-            $talents = $this->talentService->getAllTalents($perPage);
+            $searchUsingLlm = $request->get('search_using_llm');
 
+            $talents = $this->talentService->getAllTalents($perPage, $searchUsingLlm);
+
+            // For LLM search results, return custom format
+            if ($searchUsingLlm && $talents->count() > 0) {
+                $firstItem = $talents->first();
+                if (is_array($firstItem)) {
+                    // This is LLM search results - return custom format
+                    return response()->json([
+                        'success' => true,
+                        'data' => $talents->items(),
+                        'pagination' => [
+                            'page' => $talents->currentPage(),
+                            'per_page' => $talents->perPage(),
+                            'total' => $talents->total(),
+                            'last_page' => $talents->lastPage(),
+                        ],
+                        'errors' => [],
+                    ]);
+                }
+            }
+
+            // For regular results, use TalentCollection
             return response()->json((new TalentCollection($talents))->toArray($request));
         } catch (Exception $e) {
             return response()->json([
