@@ -19,7 +19,6 @@ class DummyDataSeeder extends Seeder
     public function run(): void
     {
         Talent::create([
-            'id' => 1,
             'username' => 'rizkyoctavianus',
             'name' => 'Rizky Octavianus',
             'job_title' => 'Video Editor',
@@ -31,7 +30,6 @@ class DummyDataSeeder extends Seeder
             'availability' => 'Freelance',
         ]);
         TalentExperience::create([
-            'id' => 1,
             'talent_id' => 1,
             'client_name' => 'GudangAda',
             'client_sub_title' => null,
@@ -42,7 +40,6 @@ class DummyDataSeeder extends Seeder
         ]);
 
         TalentProject::create([
-            'id' => 1,
             'talent_id' => 1,
             'experience_id' => 1,
             'project_roles' => json_encode(['Video Editor', 'Script Writer']),
@@ -115,9 +112,19 @@ class DummyDataSeeder extends Seeder
         ]);
 
         Talent::create([
-            'id' => 2,
             'username' => 'sonu-choudhary',
             'name' => 'Sonu Choudhary',
         ]);
+
+        Talent::create([
+            'username' => 'dellin-zhang',
+            'name' => 'Dellin Zhang',
+        ]);
+
+        Talent::create([
+            'username' => 'rikard-tholen',
+            'name' => 'Rikard Tholén',
+        ]);
+
     }
 }
