@@ -10,6 +10,8 @@ use App\Models\TalentProject;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Exception;
+use App\Services\DocumentProcessingService;
+use App\Jobs\UpdateTalentDataJob;
 
 class ProcessScrapedTalentCommand extends Command
 {
@@ -21,21 +23,24 @@ class ProcessScrapedTalentCommand extends Command
     protected $signature = 'talent:process-scraped
                             {file : The scraped JSON file path}
                             {--save : Save to database}
-                            {--output= : Output file path for processed data}';
+                            {--output= : Output file path for processed data}
+                            {--talent-id= : Talent ID for database operations}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process scraped portfolio data using AI to extract talent information';
+    protected $description = 'Process scraped portfolio data using AI to extract talent information and optionally save to database';
 
     protected OpenAIService $openAIService;
+    protected DocumentProcessingService $documentService;
 
     public function __construct(OpenAIService $openAIService)
     {
         parent::__construct();
         $this->openAIService = $openAIService;
+        $this->documentService = new DocumentProcessingService();
     }
 
     /**
@@ -46,14 +51,26 @@ class ProcessScrapedTalentCommand extends Command
         $filePath = $this->argument('file');
         $saveToDb = $this->option('save');
         $outputPath = $this->option('output');
+        $talentId = $this->option('talent-id');
 
         $this->info("🤖 Processing scraped data with AI...");
         $this->info("📄 File: {$filePath}");
 
-        // Check if file exists
+        // Check if file exists (handle both relative and private paths)
+        $actualPath = $filePath;
         if (!Storage::exists($filePath)) {
-            $this->error("❌ File not found: {$filePath}");
-            return 1;
+            // Try with private prefix
+            $actualPath = 'private/' . $filePath;
+            if (!Storage::exists($actualPath)) {
+                $this->error("❌ File not found: {$filePath}");
+                $this->line("💡 Available files in scraped-data:");
+                $files = Storage::files('private/scraped-data');
+                foreach (array_slice($files, 0, 10) as $file) {
+                    $this->line("  • " . basename(dirname($file)) . '/' . basename($file));
+                }
+                return 1;
+            }
+            $filePath = $actualPath;
         }
 
         try {
@@ -67,12 +84,33 @@ class ProcessScrapedTalentCommand extends Command
 
             $this->info("📊 Loaded scraped data from: " . ($scrapedData['url'] ?? 'Unknown URL'));
 
-            // Load extracted documents text if available
-            $documentsData = $this->loadExtractedDocuments($filePath);
-            if (!empty($documentsData)) {
-                $this->info("📄 Found {" . count($documentsData) . "} extracted document(s)");
-                // Add documents data to scraped data
-                $scrapedData['extracted_documents'] = $documentsData;
+            // Process documents if available
+            $processedDocuments = [];
+            if (!empty($scrapedData['downloadable_links']) && $talentId) {
+                $talent = Talent::find($talentId);
+                if ($talent) {
+                    $scrapingResult = $talent->scrapingResults()->latest()->first();
+                    if ($scrapingResult) {
+                        $this->line("📄 Processing documents...");
+                        $processedDocuments = $this->documentService->processDocuments(
+                            $talent,
+                            $scrapingResult,
+                            $scrapedData['downloadable_links']
+                        );
+
+                        if (!empty($processedDocuments)) {
+                            $this->info("📄 Found {" . count($processedDocuments) . "} extracted document(s)");
+                            $scrapedData['extracted_documents'] = $processedDocuments;
+                        }
+                    }
+                }
+            } else {
+                // Load extracted documents text if available (legacy support)
+                $documentsData = $this->loadExtractedDocuments($filePath);
+                if (!empty($documentsData)) {
+                    $this->info("📄 Found {" . count($documentsData) . "} extracted document(s)");
+                    $scrapedData['extracted_documents'] = $documentsData;
+                }
             }
 
             // Process with AI
@@ -89,7 +127,7 @@ class ProcessScrapedTalentCommand extends Command
                 $outputData = [
                     'original_url' => $scrapedData['url'] ?? 'Unknown',
                     'processed_at' => now()->toISOString(),
-                    'included_documents' => $documentsData ?? [],
+                    'included_documents' => $processedDocuments,
                     'extracted_data' => $processedData
                 ];
 
@@ -99,14 +137,17 @@ class ProcessScrapedTalentCommand extends Command
             }
 
             // Save to database if requested
-            if ($saveToDb) {
-                $this->line("💾 Saving to database...");
-                $talentId = $this->saveTalentToDatabase($processedData);
+            if ($saveToDb && $talentId) {
+                $talent = Talent::find($talentId);
+                if ($talent) {
+                    $this->line("💾 Saving to database...");
 
-                if ($talentId) {
-                    $this->info("✅ Talent saved to database with ID: {$talentId}");
+                    // Use the new UpdateTalentDataJob to save the data
+                    UpdateTalentDataJob::dispatchSync($talent, $processedData);
+
+                    $this->info("✅ Talent data updated in database for ID: {$talentId}");
                 } else {
-                    $this->error("❌ Failed to save talent to database");
+                    $this->error("❌ Talent not found with ID: {$talentId}");
                     return 1;
                 }
             }

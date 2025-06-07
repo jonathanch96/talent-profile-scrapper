@@ -4,13 +4,15 @@ namespace App\Jobs;
 
 use App\Models\Talent;
 use App\Models\TalentScrapingResult;
+use App\Services\OpenAIService;
+use App\Services\DocumentProcessingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProcessScrapedTalentJob implements ShouldQueue
 {
@@ -33,59 +35,71 @@ class ProcessScrapedTalentJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            Log::info("Starting LLM processing for talent: {$this->talent->username}");
+            Log::info("Starting scraped data processing for talent: {$this->talent->username}");
 
             // Update scraping result status
             $this->scrapingResult->update(['status' => 'processing']);
 
-            // Generate unique filename for processed data
+            // Load scraped data
+            $scrapedData = json_decode(Storage::get($this->scrapingResult->scraped_data_path), true);
+
+            if (!$scrapedData) {
+                throw new \Exception("Invalid or empty scraped data");
+            }
+
+            // Process documents if any downloadable links exist
+            $processedDocuments = [];
+            if (!empty($scrapedData['downloadable_links'])) {
+                $documentService = new DocumentProcessingService();
+                $processedDocuments = $documentService->processDocuments(
+                    $this->talent,
+                    $this->scrapingResult,
+                    $scrapedData['downloadable_links']
+                );
+
+                // Add processed documents to scraped data for AI processing
+                if (!empty($processedDocuments)) {
+                    $scrapedData['extracted_documents'] = $processedDocuments;
+                }
+            }
+
+            // Process with OpenAI
+            $openAIService = new OpenAIService();
+            $processedData = $openAIService->processTalentPortfolio($scrapedData);
+
+            // Generate filename for processed data
             $filename = "processed_data/{$this->talent->id}_{$this->talent->username}_" . now()->timestamp . ".json";
-            $filePath = storage_path("app/{$filename}");
 
-            // Ensure directory exists
-            $directory = dirname($filePath);
-            if (!is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
+            // Save processed data
+            $outputData = [
+                'original_url' => $scrapedData['url'] ?? 'Unknown',
+                'processed_at' => now()->toISOString(),
+                'included_documents' => $processedDocuments,
+                'extracted_data' => $processedData
+            ];
 
-            // Get the scraped data file path
-            $scrapedDataPath = storage_path("app/{$this->scrapingResult->scraped_data_path}");
+            Storage::put($filename, json_encode($outputData, JSON_PRETTY_PRINT));
 
-            if (!file_exists($scrapedDataPath)) {
-                throw new \Exception("Scraped data file not found: {$scrapedDataPath}");
-            }
-
-            // Run the processing command
-            $exitCode = Artisan::call('process:scraped-talent', [
-                'input' => $scrapedDataPath,
-                '--output' => $filePath,
-                '--talent-id' => $this->talent->id,
+            // Update scraping result with processed file path
+            $this->scrapingResult->update([
+                'processed_data_path' => $filename,
+                'status' => 'ai_processed',
+                'metadata' => array_merge($this->scrapingResult->metadata ?? [], [
+                    'processed_file_size' => strlen(json_encode($outputData)),
+                    'ai_processed_at' => now()->toDateTimeString(),
+                ])
             ]);
 
-            if ($exitCode === 0 && file_exists($filePath)) {
-                // Update scraping result with processed file path
-                $this->scrapingResult->update([
-                    'processed_data_path' => $filename,
-                    'status' => 'completed',
-                    'metadata' => array_merge($this->scrapingResult->metadata ?? [], [
-                        'processed_file_size' => filesize($filePath),
-                        'processed_at' => now()->toDateTimeString(),
-                    ])
-                ]);
+            Log::info("AI processing completed for talent: {$this->talent->username}");
 
-                // Update talent status
-                $this->talent->update(['scraping_status' => 'completed']);
+            // Dispatch separate job to update talent data in database
+            // This separation ensures that AI costs are not repeated if DB insertion fails
+            UpdateTalentDataJob::dispatch($this->talent, $processedData);
 
-                // Dispatch job to update vector embeddings
-                UpdateVectorEmbeddingJob::dispatch($this->talent);
-
-                Log::info("LLM processing completed for talent: {$this->talent->username}");
-            } else {
-                throw new \Exception("Processing command failed or output file not created");
-            }
+            Log::info("Database update job dispatched for talent: {$this->talent->username}");
 
         } catch (\Exception $e) {
-            Log::error("LLM processing failed for talent: {$this->talent->username}", [
+            Log::error("Scraped data processing failed for talent: {$this->talent->username}", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

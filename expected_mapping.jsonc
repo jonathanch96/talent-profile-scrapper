@@ -1,0 +1,65 @@
+{
+    "name": "Sono",
+    "job_title": "Video Editor",
+    "description": "HI, I'M A SENIOR MOTION AND VIDEO EDITOR WITH 5 YEARS OF EXPERIENCE IN VIDEO EDITING, MOTION GRAPHICS, GRAPHIC DESIGN, AND PHOTO EDITING. I ENJOY CREATING VISUALLY ENGAGING CONTENT AND TURNING IDEAS INTO POLISHED, PROFESSIONAL VISUALS.",
+    "image": "https://tenet-api.joinroster.co/file/51b65643-fec7-4d00-a1f1-39b2e4482671",
+    "location": "Jakarta, Indonesia",
+    "timezone": "Asia/Jakarta",
+    "talent_status": "Open to work", //if not specified just put -
+    "availability": "Freelance", //if not specified just put -
+    "experiences": [
+        {
+            "client_name": "GudangAda",
+            "client_sub_title": null,
+            "client_logo": "https://media.licdn.com/dms/image/D4E12AQFuCmxN72C2yQ/article-cover_image-shrink_720_1280/0/1702503196049?e=2147483647&v=beta&t=9HHff4rJDnxuWrqfzPqX9j2dncDBKQeShXf2Wt5nrUc",
+            "job_type": "Full Time",
+            "period": "Jan 2023 - Jan 2024",
+            "description": "- Assisted in creating graphic designs and motion graphics. - Supported the marketing team with visual content."
+        }
+    ],
+    "projects": [
+        {
+            "project_roles": ["Video Editor", "Script Writer"],
+            "title": "#TemanUla: Cerita Pak Roby dan Kampung Ula dalam Membawa Perubahan dimasa Pandemi",
+            "views": 100,
+            "likes": 100,
+            "image": "https://i.ytimg.com/vi/eDVUgrcvJHQ/hqdefault.jpg"
+        }
+    ],
+    "job_types": ["Video Editor", "Script Writer"],
+    "languages": [
+        { "language": "Indonesia", "proficiency": "Native" },
+        { "language": "English", "proficiency": "Native" }
+    ],
+    "content_vertical": [ // for this map the talent project, please label the project with the content vertical (example: Travel, Food, Fashion, Beauty, Lifestyle, Technology, Sports)
+        "Travel",
+        "Food",
+        "Fashion",
+        "Beauty",
+        "Lifestyle",
+        "Technology",
+        "Sports"
+    ],
+    "platform_specialties": [
+        "Youtube",
+        "Tiktok",
+        "Instagram",
+        "Facebook",
+        "Linkedin",
+        "Website"
+    ],
+    "softwares": [ // map the software used in the talent project from description, experience, project, etc
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Adobe Illustrator",
+        "Adobe Lightroom",
+        "Adobe XD",
+    ],
+    "skills": [ // map the skills used in the talent project from description, experience, project, etc
+        "Video Editing",
+        "Motion Graphics",
+        "Graphic Design",
+        "Photo Editing"
+    ]
+}

@@ -17,12 +17,12 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('name');
-            $table->string('job_title');
-            $table->text('description');
-            $table->string('image');
-            $table->string('location');
-            $table->string('timezone');
-            $table->string('talent_status')->comment('Open To Work, Not Open To Work, Not Available');
+            $table->string('job_title')->nullable();
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->string('location')->nullable();
+            $table->string('timezone')->nullable();
+            $table->string('talent_status')->nullable()->comment('Open To Work, Not Open To Work, Not Available');
             $table->string('availability')->nullable()->comment('Full Time, Part Time, Freelance');
             $table->string('website_url')->nullable();
             $table->vector('vectordb', 1536)->nullable()->comment('OpenAI embedding vector');

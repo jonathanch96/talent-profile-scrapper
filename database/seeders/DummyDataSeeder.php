@@ -101,5 +101,17 @@ class DummyDataSeeder extends Seeder
             'content_type_id' => ContentType::SKILLS,
             'content_type_value_id' => ContentTypeValue::PHOTOGRAPHY,
         ]);
+
+        TalentContent::create([
+            'talent_id' => 1,
+            'content_type_id' => ContentType::SOFTWARE,
+            'content_type_value_id' => ContentTypeValue::ADOBE_PREMIERE_PRO,
+        ]);
+
+        TalentContent::create([
+            'talent_id' => 1,
+            'content_type_id' => ContentType::SOFTWARE,
+            'content_type_value_id' => ContentTypeValue::ADOBE_AFTER_EFFECTS,
+        ]);
     }
 }

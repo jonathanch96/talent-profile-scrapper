@@ -129,7 +129,7 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
             }
         }
 
-        // Content types and skills
+        // Content types and skills - Enhanced for better searchability
         $contentGroups = [];
         foreach ($this->talent->contents as $content) {
             $typeName = $content->contentType->name ?? 'Unknown';
@@ -142,7 +142,40 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
         }
 
         foreach ($contentGroups as $type => $values) {
+            // Add both the group and individual items for better matching
             $textParts[] = "{$type}: " . implode(', ', $values);
+
+            // Add individual skills/software for direct matching
+            foreach ($values as $value) {
+                $textParts[] = "Has {$type}: {$value}";
+
+                // Add additional context for common searches
+                if ($type === 'Skills') {
+                    $textParts[] = "Skilled in {$value}";
+                    $textParts[] = "Expert in {$value}";
+                } elseif ($type === 'Software') {
+                    $textParts[] = "Uses {$value}";
+                    $textParts[] = "Proficient in {$value}";
+                } elseif ($type === 'Job Type') {
+                    $textParts[] = "Works as {$value}";
+                    $textParts[] = "Professional {$value}";
+                }
+            }
+        }
+
+        // Add experience-related searchable content
+        $totalExperience = $this->talent->experiences->count();
+        if ($totalExperience > 0) {
+            $textParts[] = "Has {$totalExperience} work experiences";
+
+            // Extract years of experience if mentioned in descriptions
+            $experienceText = $this->talent->experiences->pluck('description')->implode(' ');
+            if (preg_match('/(\d+)\+?\s*years?\s*(?:of\s*)?experience/i', $experienceText, $matches)) {
+                $years = $matches[1];
+                $textParts[] = "Has {$years} years of experience";
+                $textParts[] = "{$years}+ years experience";
+                $textParts[] = "More than {$years} years experience";
+            }
         }
 
         // Documents content
