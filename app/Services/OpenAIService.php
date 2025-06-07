@@ -438,33 +438,29 @@ class OpenAIService
     private function getOrCreateContentTypeValue(int $contentTypeId, string $title): ?int
     {
         try {
-            // Try to find existing content type value (case-insensitive)
-            $existing = ContentTypeValue::where('content_type_id', $contentTypeId)
-                ->whereRaw('LOWER(title) = LOWER(?)', [trim($title)])
-                ->first();
+            // Use firstOrCreate to handle concurrent insertions gracefully
+            $contentTypeValue = ContentTypeValue::firstOrCreate(
+                [
+                    'content_type_id' => $contentTypeId,
+                    'title' => trim($title)
+                ],
+                [
+                    'description' => trim($title),
+                    'order' => ContentTypeValue::where('content_type_id', $contentTypeId)->count() + 1
+                ]
+            );
 
-            if ($existing) {
-                return $existing->id;
-            }
-
-            // Create new content type value
-            $newContentTypeValue = ContentTypeValue::create([
-                'content_type_id' => $contentTypeId,
-                'title' => trim($title),
-                'description' => trim($title),
-                'order' => ContentTypeValue::where('content_type_id', $contentTypeId)->count() + 1
-            ]);
-
-            Log::info('Created new ContentTypeValue', [
+            Log::info('Found/Created ContentTypeValue', [
                 'content_type_id' => $contentTypeId,
                 'title' => $title,
-                'id' => $newContentTypeValue->id
+                'id' => $contentTypeValue->id,
+                'was_created' => $contentTypeValue->wasRecentlyCreated
             ]);
 
-            return $newContentTypeValue->id;
+            return $contentTypeValue->id;
 
         } catch (Exception $e) {
-            Log::error('Error creating ContentTypeValue', [
+            Log::error('Error creating/finding ContentTypeValue', [
                 'content_type_id' => $contentTypeId,
                 'title' => $title,
                 'error' => $e->getMessage()

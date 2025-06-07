@@ -12,6 +12,15 @@ class DocumentDownloadService
 {
     protected int $timeout = 120;
     protected int $maxFileSize = 50 * 1024 * 1024; // 50MB max
+    protected ?string $customDocumentsDirectory = null;
+
+    /**
+     * Set custom documents directory for organized storage
+     */
+    public function setCustomDocumentsDirectory(?string $directory): void
+    {
+        $this->customDocumentsDirectory = $directory;
+    }
 
     /**
      * Download document from URL
@@ -176,7 +185,8 @@ class DocumentDownloadService
      */
     protected function saveDocument(string $content, string $filename): string
     {
-        $directory = 'documents/talent_documents';
+        // Use custom directory if set, otherwise use default
+        $directory = $this->customDocumentsDirectory ?? 'documents/talent_documents';
         $filePath = "{$directory}/{$filename}";
 
         Storage::makeDirectory($directory);

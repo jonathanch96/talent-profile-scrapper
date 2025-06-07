@@ -113,5 +113,11 @@ class DummyDataSeeder extends Seeder
             'content_type_id' => ContentType::SOFTWARE,
             'content_type_value_id' => ContentTypeValue::ADOBE_AFTER_EFFECTS,
         ]);
+
+        Talent::create([
+            'id' => 2,
+            'username' => 'sonu-choudhary',
+            'name' => 'Sonu Choudhary',
+        ]);
     }
 }

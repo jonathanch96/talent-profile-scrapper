@@ -19,7 +19,7 @@ class ProcessDocumentsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 600; // 10 minutes timeout
-    public $tries = 2;
+    public $tries = 1;
 
     /**
      * Create a new job instance.

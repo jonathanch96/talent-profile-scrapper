@@ -16,7 +16,7 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 120; // 2 minutes timeout
-    public $tries = 3;
+    public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -67,27 +67,25 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
     }
 
     /**
-     * Collect all relevant text data from talent profile
+     * Collect all relevant text data from talent profile (optimized for token limits)
      */
     private function collectTalentTextData(): string
     {
         $textParts = [];
 
-        // Basic profile information
-        if ($this->talent->name) {
-            $textParts[] = "Name: " . $this->talent->name;
+        // Basic profile information (concise format)
+        $basicInfo = [];
+        if ($this->talent->name) $basicInfo[] = $this->talent->name;
+        if ($this->talent->job_title) $basicInfo[] = $this->talent->job_title;
+        if ($this->talent->location) $basicInfo[] = $this->talent->location;
+        if (!empty($basicInfo)) {
+            $textParts[] = implode(' | ', $basicInfo);
         }
 
-        if ($this->talent->job_title) {
-            $textParts[] = "Job Title: " . $this->talent->job_title;
-        }
-
+        // Description (truncated to prevent token overflow)
         if ($this->talent->description) {
-            $textParts[] = "Description: " . $this->talent->description;
-        }
-
-        if ($this->talent->location) {
-            $textParts[] = "Location: " . $this->talent->location;
+            $description = substr($this->talent->description, 0, 300);
+            $textParts[] = $description;
         }
 
         // Load relationships for embedding
@@ -98,38 +96,23 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
             'contents.contentTypeValue',
             'documents' => function($query) {
                 $query->where('extraction_status', 'completed')
-                      ->whereNotNull('extracted_content');
+                      ->whereNotNull('extracted_content')
+                      ->limit(2); // Limit to 2 most recent documents
             }
         ]);
 
-        // Experiences
-        foreach ($this->talent->experiences as $experience) {
-            $expText = [];
-            if ($experience->client_name) $expText[] = "Company: " . $experience->client_name;
-            if ($experience->job_type) $expText[] = "Role: " . $experience->job_type;
-            if ($experience->period) $expText[] = "Period: " . $experience->period;
-            if ($experience->description) $expText[] = "Description: " . $experience->description;
-
-            if (!empty($expText)) {
-                $textParts[] = "Experience: " . implode(', ', $expText);
-            }
+        // Experiences (condensed format)
+        $experienceYears = $this->extractExperienceYears();
+        if ($experienceYears) {
+            $textParts[] = "{$experienceYears} years experience";
         }
 
-        // Projects
-        foreach ($this->talent->projects as $project) {
-            $projText = [];
-            if ($project->title) $projText[] = "Title: " . $project->title;
-            if ($project->description) $projText[] = "Description: " . $project->description;
-            if ($project->project_roles && is_array($project->project_roles)) {
-                $projText[] = "Roles: " . implode(', ', $project->project_roles);
-            }
-
-            if (!empty($projText)) {
-                $textParts[] = "Project: " . implode(', ', $projText);
-            }
+        $companies = $this->talent->experiences->pluck('client_name')->filter()->unique()->take(5);
+        if ($companies->isNotEmpty()) {
+            $textParts[] = "Companies: " . $companies->implode(', ');
         }
 
-        // Content types and skills - Enhanced for better searchability
+        // Content types and skills (optimized)
         $contentGroups = [];
         foreach ($this->talent->contents as $content) {
             $typeName = $content->contentType->name ?? 'Unknown';
@@ -141,53 +124,101 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
             $contentGroups[$typeName][] = $valueName;
         }
 
+        // Optimized searchable content
         foreach ($contentGroups as $type => $values) {
-            // Add both the group and individual items for better matching
-            $textParts[] = "{$type}: " . implode(', ', $values);
+            $valuesList = implode(', ', array_unique($values));
 
-            // Add individual skills/software for direct matching
-            foreach ($values as $value) {
-                $textParts[] = "Has {$type}: {$value}";
-
-                // Add additional context for common searches
-                if ($type === 'Skills') {
-                    $textParts[] = "Skilled in {$value}";
-                    $textParts[] = "Expert in {$value}";
-                } elseif ($type === 'Software') {
-                    $textParts[] = "Uses {$value}";
-                    $textParts[] = "Proficient in {$value}";
-                } elseif ($type === 'Job Type') {
-                    $textParts[] = "Works as {$value}";
-                    $textParts[] = "Professional {$value}";
-                }
+            // Single comprehensive line per type for better efficiency
+            if ($type === 'Skills') {
+                $textParts[] = "Skills: {$valuesList}";
+                $textParts[] = "Expert: " . implode(' ', $values); // For "expert in X" searches
+            } elseif ($type === 'Software') {
+                $textParts[] = "Software: {$valuesList}";
+                $textParts[] = "Uses: " . implode(' ', $values); // For "uses X" searches
+            } elseif ($type === 'Job Type') {
+                $textParts[] = "Roles: {$valuesList}";
+            } elseif ($type === 'Content Vertical') {
+                $textParts[] = "Content: {$valuesList}";
+            } elseif ($type === 'Platform Specialty') {
+                $textParts[] = "Platforms: {$valuesList}";
+            } else {
+                $textParts[] = "{$type}: {$valuesList}";
             }
         }
 
-        // Add experience-related searchable content
-        $totalExperience = $this->talent->experiences->count();
-        if ($totalExperience > 0) {
-            $textParts[] = "Has {$totalExperience} work experiences";
-
-            // Extract years of experience if mentioned in descriptions
-            $experienceText = $this->talent->experiences->pluck('description')->implode(' ');
-            if (preg_match('/(\d+)\+?\s*years?\s*(?:of\s*)?experience/i', $experienceText, $matches)) {
-                $years = $matches[1];
-                $textParts[] = "Has {$years} years of experience";
-                $textParts[] = "{$years}+ years experience";
-                $textParts[] = "More than {$years} years experience";
-            }
+        // Projects (most important ones only)
+        $projectTitles = $this->talent->projects->pluck('title')->filter()->take(3);
+        if ($projectTitles->isNotEmpty()) {
+            $textParts[] = "Projects: " . $projectTitles->implode(', ');
         }
 
-        // Documents content
-        foreach ($this->talent->documents as $document) {
+        // Document content (heavily limited)
+        $documentTexts = [];
+        foreach ($this->talent->documents->take(2) as $document) {
             if (!empty($document->extracted_content)) {
-                // Limit document content to avoid token limits
-                $documentContent = substr($document->extracted_content, 0, 2000);
-                $textParts[] = "Document ({$document->source_link_text}): " . $documentContent;
+                // Extract only the most relevant parts (first 500 chars)
+                $content = substr($document->extracted_content, 0, 500);
+                $documentTexts[] = $this->extractKeyInfo($content);
             }
         }
 
-        return implode('. ', $textParts);
+        if (!empty($documentTexts)) {
+            $textParts[] = "CV: " . implode(' ', $documentTexts);
+        }
+
+        $finalText = implode('. ', $textParts);
+
+        // Final safety check: truncate if still too long (approximately 6000 tokens max)
+        if (strlen($finalText) > 24000) { // Rough estimate: 4 chars per token
+            $finalText = substr($finalText, 0, 24000) . '...';
+        }
+
+        Log::info("Generated embedding text", [
+            'talent_id' => $this->talent->id,
+            'text_length' => strlen($finalText),
+            'estimated_tokens' => intval(strlen($finalText) / 4)
+        ]);
+
+        return $finalText;
+    }
+
+    /**
+     * Extract years of experience from descriptions
+     */
+    private function extractExperienceYears(): ?string
+    {
+        $experienceText = $this->talent->experiences->pluck('description')->implode(' ');
+
+        if (preg_match('/(\d+)\+?\s*years?\s*(?:of\s*)?experience/i', $experienceText, $matches)) {
+            return $matches[1];
+        }
+
+        // Alternative patterns
+        if (preg_match('/(\d+)\+?\s*years?\s*in/i', $experienceText, $matches)) {
+            return $matches[1];
+        }
+
+        // Count total experiences as fallback
+        $totalExp = $this->talent->experiences->count();
+        return $totalExp > 0 ? (string)$totalExp : null;
+    }
+
+    /**
+     * Extract key information from document content
+     */
+    private function extractKeyInfo(string $content): string
+    {
+        // Look for key sections and skills
+        $keywords = ['skills', 'experience', 'education', 'software', 'tools', 'languages'];
+        $keyPhrases = [];
+
+        foreach ($keywords as $keyword) {
+            if (preg_match("/{$keyword}[:\s]+([^.\n]{1,100})/i", $content, $matches)) {
+                $keyPhrases[] = trim($matches[1]);
+            }
+        }
+
+        return implode(' ', array_slice($keyPhrases, 0, 3));
     }
 
     /**

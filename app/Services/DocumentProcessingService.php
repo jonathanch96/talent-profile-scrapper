@@ -25,9 +25,10 @@ class DocumentProcessingService
      * @param Talent $talent
      * @param TalentScrapingResult $scrapingResult
      * @param array $downloadableLinks
+     * @param string|null $documentsDir Custom documents directory path
      * @return array
      */
-    public function processDocuments(Talent $talent, TalentScrapingResult $scrapingResult, array $downloadableLinks): array
+    public function processDocuments(Talent $talent, TalentScrapingResult $scrapingResult, array $downloadableLinks, ?string $documentsDir = null): array
     {
         $processedDocuments = [];
 
@@ -52,8 +53,14 @@ class DocumentProcessingService
                 Log::info("Processing document", [
                     'document_id' => $document->id,
                     'url' => $linkData['url'],
-                    'type' => $linkData['document_type']
+                    'type' => $linkData['document_type'],
+                    'custom_documents_dir' => $documentsDir
                 ]);
+
+                // Set custom documents directory in the download service if provided
+                if ($documentsDir) {
+                    $this->downloadService->setCustomDocumentsDirectory($documentsDir);
+                }
 
                 // Download the document
                 if ($this->downloadService->downloadDocument($document)) {

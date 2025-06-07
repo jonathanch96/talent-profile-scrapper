@@ -23,7 +23,7 @@ class UpdateTalentDataJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300; // 5 minutes timeout
-    public $tries = 2;
+    public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -260,37 +260,31 @@ class UpdateTalentDataJob implements ShouldQueue
     }
 
     /**
-     * Get existing or create new ContentTypeValue using upsert
+     * Get existing or create new ContentTypeValue using firstOrCreate
      */
     private function getOrCreateContentTypeValue(int $contentTypeId, string $title): ?int
     {
         try {
-            // Use upsert to handle creation/update
-            ContentTypeValue::upsert([
+            // Use firstOrCreate to handle concurrent insertions gracefully
+            $contentTypeValue = ContentTypeValue::firstOrCreate(
                 [
                     'content_type_id' => $contentTypeId,
-                    'title' => trim($title),
+                    'title' => trim($title)
+                ],
+                [
                     'description' => trim($title),
-                    'order' => 999, // Will be updated if needed
+                    'order' => ContentTypeValue::where('content_type_id', $contentTypeId)->count() + 1
                 ]
-            ], ['content_type_id', 'title'], ['description', 'updated_at']);
+            );
 
-            // Get the content type value
-            $contentTypeValue = ContentTypeValue::where('content_type_id', $contentTypeId)
-                ->where('title', trim($title))
-                ->first();
+            Log::debug("Content type value found/created", [
+                'content_type_id' => $contentTypeId,
+                'title' => $title,
+                'id' => $contentTypeValue->id,
+                'was_created' => $contentTypeValue->wasRecentlyCreated
+            ]);
 
-            if ($contentTypeValue) {
-                Log::debug("Content type value found/created", [
-                    'content_type_id' => $contentTypeId,
-                    'title' => $title,
-                    'id' => $contentTypeValue->id
-                ]);
-
-                return $contentTypeValue->id;
-            }
-
-            return null;
+            return $contentTypeValue->id;
 
         } catch (\Exception $e) {
             Log::error("Error creating/finding ContentTypeValue", [
