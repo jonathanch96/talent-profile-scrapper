@@ -1,0 +1,726 @@
+{
+	"info": {
+		"_postman_id": "92f80ee1-4351-401f-ba99-83573e65aebe",
+		"name": "Talent Scrapper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10261236"
+	},
+	"item": [
+		{
+			"name": "Talents",
+			"item": [
+				{
+					"name": "Get All Talents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-TOKEN",
+								"value": "{{APITOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/talents",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"talents"
+							],
+							"query": [
+								{
+									"key": "search_using_llm",
+									"value": "I want a creator who has experience with top artists.",
+									"description": " Search query for LLM-powered semantic search",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Talents",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/talents",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 09:26:02 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Rizky Octavianus\",\n            \"username\": \"rizkyoctavianus\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Sonu Choudhary\",\n            \"username\": \"sonu-choudhary\"\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"per_page\": 10,\n        \"total\": 2,\n        \"last_page\": 1\n    },\n    \"errors\": []\n}"
+						},
+						{
+							"name": "Get All Talents With LLM",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/talents?search_using_llm=I'm looking for an editor who is of Chinese ethnicity",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents"
+									],
+									"query": [
+										{
+											"key": "search_using_llm",
+											"value": "I'm looking for an editor who is of Chinese ethnicity",
+											"description": " Search query for LLM-powered semantic search"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 12:44:01 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 2,\n            \"username\": \"sonu-choudhary\",\n            \"name\": \"Dellin Zhang\",\n            \"job_title\": \"Filmmaker, Video Editor, Photographer\",\n            \"description\": \"DELLIN ZHANG is a Chinese-American writer and filmmaker dedicated to explore colored identities and foster empathy through storytelling. Her narratives are often inspired by the in-betweens of human experiences and relational dynamics shaped by complex identities.\",\n            \"ranking_score\": 95,\n            \"full_data\": {\n                \"id\": 2,\n                \"username\": \"sonu-choudhary\",\n                \"name\": \"Dellin Zhang\",\n                \"job_title\": \"Filmmaker, Video Editor, Photographer\",\n                \"description\": \"DELLIN ZHANG is a Chinese-American writer and filmmaker dedicated to explore colored identities and foster empathy through storytelling. Her narratives are often inspired by the in-betweens of human experiences and relational dynamics shaped by complex identities.\",\n                \"image\": null,\n                \"location\": \"Los Angeles and the Bay Area\",\n                \"timezone\": null,\n                \"talent_status\": \"Open to work\",\n                \"availability\": \"Freelance\",\n                \"website_url\": \"https://dellinzhang.com/about\",\n                \"scraping_status\": \"processing_with_llm\",\n                \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                \"updated_at\": \"2025-06-07T11:42:14.000000Z\",\n                \"deleted_at\": null,\n                \"experiences\": [],\n                \"projects\": [],\n                \"contents\": [\n                    {\n                        \"id\": 1,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 33,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 33,\n                            \"content_type_id\": 1,\n                            \"title\": \"Filmmaker\",\n                            \"description\": \"Filmmaker\",\n                            \"icon\": null,\n                            \"order\": 7,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 2,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 1,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 1,\n                            \"content_type_id\": 1,\n                            \"title\": \"Video Editor\",\n                            \"description\": \"Video Editor\",\n                            \"icon\": \"https://tenet-api.joinroster.co/file/0c4a8f06-7923-4309-a0e4-0f7b94cd7033\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 3,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 34,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 34,\n                            \"content_type_id\": 1,\n                            \"title\": \"Photographer\",\n                            \"description\": \"Photographer\",\n                            \"icon\": null,\n                            \"order\": 8,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 4,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 9,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 9,\n                            \"content_type_id\": 2,\n                            \"title\": \"Entertainment\",\n                            \"description\": \"Entertainment\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 5,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 3,\n                        \"content_type_value_id\": 35,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 3,\n                            \"name\": \"Platform specialty\",\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 35,\n                            \"content_type_id\": 3,\n                            \"title\": \"Website\",\n                            \"description\": \"Website\",\n                            \"icon\": null,\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 6,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 36,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 36,\n                            \"content_type_id\": 4,\n                            \"title\": \"Video Editing\",\n                            \"description\": \"Video Editing\",\n                            \"icon\": null,\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 7,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 18,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 18,\n                            \"content_type_id\": 4,\n                            \"title\": \"Photography\",\n                            \"description\": \"Photography\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 8,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 23,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 23,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Premiere Pro\",\n                            \"description\": \"Adobe Premiere Pro\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 9,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 24,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 24,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe After Effects\",\n                            \"description\": \"Adobe After Effects\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 10,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 21,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 21,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Photoshop\",\n                            \"description\": \"Adobe Photoshop\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    }\n                ]\n            }\n        },\n        {\n            \"id\": 1,\n            \"username\": \"rizkyoctavianus\",\n            \"name\": \"Sonu Choudhary\",\n            \"job_title\": \"Video Editor\",\n            \"description\": \"I specialize in YouTube video editing, crafting high-quality content that captivates audiences and drives engagement. I’ve had the privilege of working with top creators like Uptin (3M+ followers) and XYZ Education (1M+ subscribers), contributing to content that has amassed over 5 million organic views.\",\n            \"ranking_score\": 20,\n            \"full_data\": {\n                \"id\": 1,\n                \"username\": \"rizkyoctavianus\",\n                \"name\": \"Sonu Choudhary\",\n                \"job_title\": \"Video Editor\",\n                \"description\": \"I specialize in YouTube video editing, crafting high-quality content that captivates audiences and drives engagement. I’ve had the privilege of working with top creators like Uptin (3M+ followers) and XYZ Education (1M+ subscribers), contributing to content that has amassed over 5 million organic views.\",\n                \"image\": \"https://tenet-api.joinroster.co/file/51b65643-fec7-4d00-a1f1-39b2e4482671\",\n                \"location\": \"Los Angeles\",\n                \"timezone\": \"PST\",\n                \"talent_status\": \"Open to work\",\n                \"availability\": \"Freelance\",\n                \"website_url\": \"https://sonuchoudhary.my.canva.site/portfolio\",\n                \"scraping_status\": \"processing_with_llm\",\n                \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                \"updated_at\": \"2025-06-07T12:20:06.000000Z\",\n                \"deleted_at\": null,\n                \"experiences\": [\n                    {\n                        \"id\": 9,\n                        \"talent_id\": 1,\n                        \"client_name\": \"UP10 Media\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"December 2023 - Present\",\n                        \"description\": \"Video editing services provided for various projects.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 10,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Gold Cosmetics & Skin Care\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Editing services that resulted in viral video content.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 11,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Synapse\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Transformed video content leading to increased engagement rates.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 12,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Market Men\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Provided premium video editing services.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 13,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Ellie MD\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Worked on raw footage to create engaging video content.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    }\n                ],\n                \"projects\": [\n                    {\n                        \"id\": 4,\n                        \"talent_id\": 1,\n                        \"experience_id\": 9,\n                        \"project_roles\": [\n                            \"Video Editor\"\n                        ],\n                        \"title\": \"YouTube Video Projects\",\n                        \"description\": null,\n                        \"image\": null,\n                        \"link\": null,\n                        \"views\": 5000000,\n                        \"likes\": 0,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    }\n                ],\n                \"contents\": [\n                    {\n                        \"id\": 26,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 1,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 1,\n                            \"content_type_id\": 1,\n                            \"title\": \"Video Editor\",\n                            \"description\": \"Video Editor\",\n                            \"icon\": \"https://tenet-api.joinroster.co/file/0c4a8f06-7923-4309-a0e4-0f7b94cd7033\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 27,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 7,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 7,\n                            \"content_type_id\": 2,\n                            \"title\": \"Education\",\n                            \"description\": \"Education\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 28,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 9,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 9,\n                            \"content_type_id\": 2,\n                            \"title\": \"Entertainment\",\n                            \"description\": \"Entertainment\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 29,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 3,\n                        \"content_type_value_id\": 38,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 3,\n                            \"name\": \"Platform specialty\",\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 38,\n                            \"content_type_id\": 3,\n                            \"title\": \"YouTube\",\n                            \"description\": \"YouTube\",\n                            \"icon\": null,\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T12:18:29.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:18:29.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 30,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 36,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 36,\n                            \"content_type_id\": 4,\n                            \"title\": \"Video Editing\",\n                            \"description\": \"Video Editing\",\n                            \"icon\": null,\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 31,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 42,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 42,\n                            \"content_type_id\": 4,\n                            \"title\": \"Storytelling\",\n                            \"description\": \"Storytelling\",\n                            \"icon\": null,\n                            \"order\": 7,\n                            \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 32,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 43,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 43,\n                            \"content_type_id\": 4,\n                            \"title\": \"Engagement Strategy\",\n                            \"description\": \"Engagement Strategy\",\n                            \"icon\": null,\n                            \"order\": 8,\n                            \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 33,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 23,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 23,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Premiere Pro\",\n                            \"description\": \"Adobe Premiere Pro\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 34,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 24,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 24,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe After Effects\",\n                            \"description\": \"Adobe After Effects\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    }\n                ]\n            }\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"per_page\": 10,\n        \"total\": 2,\n        \"last_page\": 1\n    },\n    \"errors\": []\n}"
+						},
+						{
+							"name": "Get All Talents With LLM",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/talents?search_using_llm=I want a creator who has experience with top artists.",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents"
+									],
+									"query": [
+										{
+											"key": "search_using_llm",
+											"value": "I want a creator who has experience with top artists.",
+											"description": " Search query for LLM-powered semantic search"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 12:59:43 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"username\": \"rizkyoctavianus\",\n            \"name\": \"Sonu Choudhary\",\n            \"job_title\": \"Video Editor\",\n            \"description\": \"I specialize in YouTube video editing, crafting high-quality content that captivates audiences and drives engagement. I’ve had the privilege of working with top creators like Uptin (3M+ followers) and XYZ Education (1M+ subscribers), contributing to content that has amassed over 5 million organic views.\",\n            \"ranking_score\": 95,\n            \"full_data\": {\n                \"id\": 1,\n                \"username\": \"rizkyoctavianus\",\n                \"name\": \"Sonu Choudhary\",\n                \"job_title\": \"Video Editor\",\n                \"description\": \"I specialize in YouTube video editing, crafting high-quality content that captivates audiences and drives engagement. I’ve had the privilege of working with top creators like Uptin (3M+ followers) and XYZ Education (1M+ subscribers), contributing to content that has amassed over 5 million organic views.\",\n                \"image\": \"https://tenet-api.joinroster.co/file/51b65643-fec7-4d00-a1f1-39b2e4482671\",\n                \"location\": \"Los Angeles\",\n                \"timezone\": \"PST\",\n                \"talent_status\": \"Open to work\",\n                \"availability\": \"Freelance\",\n                \"website_url\": \"https://sonuchoudhary.my.canva.site/portfolio\",\n                \"scraping_status\": \"processing_with_llm\",\n                \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                \"updated_at\": \"2025-06-07T12:20:06.000000Z\",\n                \"deleted_at\": null,\n                \"experiences\": [\n                    {\n                        \"id\": 9,\n                        \"talent_id\": 1,\n                        \"client_name\": \"UP10 Media\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"December 2023 - Present\",\n                        \"description\": \"Video editing services provided for various projects.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 10,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Gold Cosmetics & Skin Care\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Editing services that resulted in viral video content.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 11,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Synapse\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Transformed video content leading to increased engagement rates.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 12,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Market Men\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Provided premium video editing services.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    },\n                    {\n                        \"id\": 13,\n                        \"talent_id\": 1,\n                        \"client_name\": \"Ellie MD\",\n                        \"client_sub_title\": null,\n                        \"client_logo\": null,\n                        \"job_type\": \"Freelance\",\n                        \"period\": \"Date not specified\",\n                        \"description\": \"Worked on raw footage to create engaging video content.\",\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    }\n                ],\n                \"projects\": [\n                    {\n                        \"id\": 4,\n                        \"talent_id\": 1,\n                        \"experience_id\": 9,\n                        \"project_roles\": [\n                            \"Video Editor\"\n                        ],\n                        \"title\": \"YouTube Video Projects\",\n                        \"description\": null,\n                        \"image\": null,\n                        \"link\": null,\n                        \"views\": 5000000,\n                        \"likes\": 0,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null\n                    }\n                ],\n                \"contents\": [\n                    {\n                        \"id\": 26,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 1,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 1,\n                            \"content_type_id\": 1,\n                            \"title\": \"Video Editor\",\n                            \"description\": \"Video Editor\",\n                            \"icon\": \"https://tenet-api.joinroster.co/file/0c4a8f06-7923-4309-a0e4-0f7b94cd7033\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 27,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 7,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 7,\n                            \"content_type_id\": 2,\n                            \"title\": \"Education\",\n                            \"description\": \"Education\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 28,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 9,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 9,\n                            \"content_type_id\": 2,\n                            \"title\": \"Entertainment\",\n                            \"description\": \"Entertainment\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 29,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 3,\n                        \"content_type_value_id\": 38,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 3,\n                            \"name\": \"Platform specialty\",\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 38,\n                            \"content_type_id\": 3,\n                            \"title\": \"YouTube\",\n                            \"description\": \"YouTube\",\n                            \"icon\": null,\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T12:18:29.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:18:29.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 30,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 36,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 36,\n                            \"content_type_id\": 4,\n                            \"title\": \"Video Editing\",\n                            \"description\": \"Video Editing\",\n                            \"icon\": null,\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 31,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 42,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 42,\n                            \"content_type_id\": 4,\n                            \"title\": \"Storytelling\",\n                            \"description\": \"Storytelling\",\n                            \"icon\": null,\n                            \"order\": 7,\n                            \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 32,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 43,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 43,\n                            \"content_type_id\": 4,\n                            \"title\": \"Engagement Strategy\",\n                            \"description\": \"Engagement Strategy\",\n                            \"icon\": null,\n                            \"order\": 8,\n                            \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 33,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 23,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 23,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Premiere Pro\",\n                            \"description\": \"Adobe Premiere Pro\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 34,\n                        \"talent_id\": 1,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 24,\n                        \"created_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"updated_at\": \"2025-06-07T12:20:05.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 24,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe After Effects\",\n                            \"description\": \"Adobe After Effects\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    }\n                ]\n            }\n        },\n        {\n            \"id\": 2,\n            \"username\": \"sonu-choudhary\",\n            \"name\": \"Dellin Zhang\",\n            \"job_title\": \"Filmmaker, Video Editor, Photographer\",\n            \"description\": \"DELLIN ZHANG is a Chinese-American writer and filmmaker dedicated to explore colored identities and foster empathy through storytelling. Her narratives are often inspired by the in-betweens of human experiences and relational dynamics shaped by complex identities.\",\n            \"ranking_score\": 40,\n            \"full_data\": {\n                \"id\": 2,\n                \"username\": \"sonu-choudhary\",\n                \"name\": \"Dellin Zhang\",\n                \"job_title\": \"Filmmaker, Video Editor, Photographer\",\n                \"description\": \"DELLIN ZHANG is a Chinese-American writer and filmmaker dedicated to explore colored identities and foster empathy through storytelling. Her narratives are often inspired by the in-betweens of human experiences and relational dynamics shaped by complex identities.\",\n                \"image\": null,\n                \"location\": \"Los Angeles and the Bay Area\",\n                \"timezone\": null,\n                \"talent_status\": \"Open to work\",\n                \"availability\": \"Freelance\",\n                \"website_url\": \"https://dellinzhang.com/about\",\n                \"scraping_status\": \"processing_with_llm\",\n                \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                \"updated_at\": \"2025-06-07T11:42:14.000000Z\",\n                \"deleted_at\": null,\n                \"experiences\": [],\n                \"projects\": [],\n                \"contents\": [\n                    {\n                        \"id\": 1,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 33,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 33,\n                            \"content_type_id\": 1,\n                            \"title\": \"Filmmaker\",\n                            \"description\": \"Filmmaker\",\n                            \"icon\": null,\n                            \"order\": 7,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 2,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 1,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 1,\n                            \"content_type_id\": 1,\n                            \"title\": \"Video Editor\",\n                            \"description\": \"Video Editor\",\n                            \"icon\": \"https://tenet-api.joinroster.co/file/0c4a8f06-7923-4309-a0e4-0f7b94cd7033\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 3,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 1,\n                        \"content_type_value_id\": 34,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 1,\n                            \"name\": \"Job Type\",\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 34,\n                            \"content_type_id\": 1,\n                            \"title\": \"Photographer\",\n                            \"description\": \"Photographer\",\n                            \"icon\": null,\n                            \"order\": 8,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 4,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 2,\n                        \"content_type_value_id\": 9,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 2,\n                            \"name\": \"Content Vertical\",\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 9,\n                            \"content_type_id\": 2,\n                            \"title\": \"Entertainment\",\n                            \"description\": \"Entertainment\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 5,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 3,\n                        \"content_type_value_id\": 35,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 3,\n                            \"name\": \"Platform specialty\",\n                            \"order\": 3,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 35,\n                            \"content_type_id\": 3,\n                            \"title\": \"Website\",\n                            \"description\": \"Website\",\n                            \"icon\": null,\n                            \"order\": 2,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 6,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 36,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 36,\n                            \"content_type_id\": 4,\n                            \"title\": \"Video Editing\",\n                            \"description\": \"Video Editing\",\n                            \"icon\": null,\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:42:11.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 7,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 4,\n                        \"content_type_value_id\": 18,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 4,\n                            \"name\": \"Skills\",\n                            \"order\": 4,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 18,\n                            \"content_type_id\": 4,\n                            \"title\": \"Photography\",\n                            \"description\": \"Photography\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 8,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 23,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 23,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Premiere Pro\",\n                            \"description\": \"Adobe Premiere Pro\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 9,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 24,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 24,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe After Effects\",\n                            \"description\": \"Adobe After Effects\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    },\n                    {\n                        \"id\": 10,\n                        \"talent_id\": 2,\n                        \"content_type_id\": 5,\n                        \"content_type_value_id\": 21,\n                        \"created_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"updated_at\": \"2025-06-07T11:42:13.000000Z\",\n                        \"deleted_at\": null,\n                        \"content_type\": {\n                            \"id\": 5,\n                            \"name\": \"Software\",\n                            \"order\": 5,\n                            \"created_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:20:22.000000Z\",\n                            \"deleted_at\": null\n                        },\n                        \"content_type_value\": {\n                            \"id\": 21,\n                            \"content_type_id\": 5,\n                            \"title\": \"Adobe Photoshop\",\n                            \"description\": \"Adobe Photoshop\",\n                            \"icon\": null,\n                            \"order\": 1,\n                            \"created_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"updated_at\": \"2025-06-07T11:35:02.000000Z\",\n                            \"deleted_at\": null\n                        }\n                    }\n                ]\n            }\n        }\n    ],\n    \"pagination\": {\n        \"page\": 1,\n        \"per_page\": 10,\n        \"total\": 2,\n        \"last_page\": 1\n    },\n    \"errors\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Talent Data Based on Username Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-TOKEN",
+								"value": "{{APITOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/talents/:username",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"talents",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "sonu-choudhary"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Talent Data Based on Username Copy",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/talents/:username",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents",
+										":username"
+									],
+									"variable": [
+										{
+											"key": "username",
+											"value": "sonu-choudhary"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 11:31:58 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"Sonu Choudhary\",\n        \"username\": \"sonu-choudhary\",\n        \"experiences\": [\n            {\n                \"company\": \"UP10 Media\",\n                \"role\": \"Full Time\",\n                \"duration\": \"December 2023 - Present\"\n            },\n            {\n                \"company\": \"Gold Cosmetics & Skin Care\",\n                \"role\": \"Full Time\",\n                \"duration\": \"March 2022 - December 2023\"\n            },\n            {\n                \"company\": \"Marketmen Group\",\n                \"role\": \"Full Time\",\n                \"duration\": \"September 2021 - March 2022\"\n            }\n        ],\n        \"projects\": [\n            {\n                \"title\": \"YouTube Video\",\n                \"description\": null,\n                \"image\": null,\n                \"link\": null,\n                \"views\": 5000000,\n                \"likes\": 0,\n                \"project_roles\": [\n                    \"Video Editor\",\n                    \"Script Writer\"\n                ]\n            }\n        ],\n        \"details\": [\n            {\n                \"name\": \"Job Type\",\n                \"values\": [\n                    {\n                        \"title\": \"Video Editor\",\n                        \"icon\": \"https://tenet-api.joinroster.co/file/0c4a8f06-7923-4309-a0e4-0f7b94cd7033\"\n                    },\n                    {\n                        \"title\": \"Script Writer\",\n                        \"icon\": \"https://tenet-api.joinroster.co/file/b8edb832-a6ee-47a2-9de4-673ce2ea4528\"\n                    }\n                ]\n            },\n            {\n                \"name\": \"Content Vertical\",\n                \"values\": [\n                    {\n                        \"title\": \"Education\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Entertainment\",\n                        \"icon\": \"\"\n                    }\n                ]\n            },\n            {\n                \"name\": \"Platform specialty\",\n                \"values\": [\n                    {\n                        \"title\": \"YouTube\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Instagram\",\n                        \"icon\": \"\"\n                    }\n                ]\n            },\n            {\n                \"name\": \"Skills\",\n                \"values\": [\n                    {\n                        \"title\": \"Video Editing\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Color grading\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Motion graphics\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Storytelling techniques\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"High-retention editing style\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"video post-production\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"AI-enhanced editing\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Project Management & Workflow Optimization\",\n                        \"icon\": \"\"\n                    }\n                ]\n            },\n            {\n                \"name\": \"Software\",\n                \"values\": [\n                    {\n                        \"title\": \"Adobe Premiere Pro\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Adobe After Effects\",\n                        \"icon\": \"\"\n                    },\n                    {\n                        \"title\": \"Adobe Photoshop\",\n                        \"icon\": \"\"\n                    }\n                ]\n            }\n        ]\n    },\n    \"errors\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Data",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-TOKEN",
+								"value": "{{APITOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/talents/:username",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"talents",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "sonu-choudhary"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Delete Data",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{URL}}/talents/:username",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents",
+										":username"
+									],
+									"variable": [
+										{
+											"key": "username",
+											"value": "sonu-choudhary"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 15:06:40 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "30"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "29"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Talent deleted successfully\",\n    \"errors\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Talent Data",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-TOKEN",
+								"value": "{{APITOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"website_url\": \"https://sonuchoudhary.my.canva.site/portfolio\"\n    // \"website_url\": \"https://dellinzhang.com/about\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/talents/:username",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"talents",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "rizkyoctavianus"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Website URL",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    // \"website_url\": \"https://sonuchoudhary.my.canva.site/portfolio\"\n    //    \"website_url\": \"https://dellinzhang.com/\"\n    // \"website_url\": \"https://app.joinroster.co/rizky-octavianus\"\n    \"website_url\": \"https://app.joinroster.co/Rikard\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/talents/:username",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents",
+										":username"
+									],
+									"variable": [
+										{
+											"key": "username",
+											"value": "sonu-choudhary"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 09:30:22 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "30"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "29"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Talent updated successfully\",\n    \"data\": {\n        \"username\": \"sonu-choudhary\",\n        \"name\": \"Sonu Choudhary\"\n    },\n    \"errors\": []\n}"
+						},
+						{
+							"name": "Get Talent Data Based on Username Copy 3",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-API-TOKEN",
+										"value": "{{APITOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "// Only Send the updated data, \n{\n    \"name\": \"Sonu Choudhary\",\n    // \"username\": \"sonu-choudhary\", // if we don't want to update username, we shouln't send it to the backend\n    \"experiences\": [\n        {\n            \"company\": \"UP10 Media\",\n            \"role\": \"Full Time\",\n            \"duration\": \"December 2023 - Present\"\n        },\n        {\n            \"company\": \"Gold Cosmetics & Skin Care\",\n            \"role\": \"Full Time\",\n            \"duration\": \"March 2022 - December 2023\"\n        },\n        {\n            \"company\": \"Marketmen Group\",\n            \"role\": \"Full Time\",\n            \"duration\": \"September 2021 - March 2022\"\n        }\n    ],\n    \"projects\": [\n        {\n            \"title\": \"YouTube Video\",\n            \"description\": null,\n            \"image\": null,\n            \"link\": null,\n            \"views\": 5000000,\n            \"likes\": 0,\n            \"project_roles\": [\n                \"Video Editor\",\n                \"Script Writer\"\n            ]\n        }\n    ],\n    \"details\": [\n        {\n            \"name\": \"Job Type\",\n            \"values\": [\n                \"Video Editor\",\n                \"Script Writer\"\n            ]\n        },\n        {\n            \"name\": \"Content Vertical\",\n            \"values\": [\n                \"Education\",\n                \"Entertainment\"\n            ]\n        },\n        {\n            \"name\": \"Platform Specialty\",\n            \"values\": [\n                \"YouTube\",\n                \"Instagram\"\n            ]\n        },\n        {\n            \"name\": \"Skills\",\n            \"values\": [\n                \"Video Editing\",\n                \"Color grading\",\n                \"Motion graphics\",\n                \"Storytelling techniques\",\n                \"High-retention editing style\",\n                \"Video post-production\",\n                \"AI-enhanced editing\",\n                \"Project Management & Workflow Optimization\"\n            ]\n        },\n        {\n            \"name\": \"Software\",\n            \"values\": [\n                \"Adobe Premiere Pro\",\n                \"Adobe After Effects\",\n                \"Adobe Photoshop\"\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/talents/:username",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"talents",
+										":username"
+									],
+									"variable": [
+										{
+											"key": "username",
+											"value": "sonu-choudhary"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.10"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.22"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 07 Jun 2025 09:30:22 GMT"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "30"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "29"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Talent updated successfully\",\n    \"data\": {\n        \"username\": \"sonu-choudhary\",\n        \"name\": \"Sonu Choudhary\"\n    },\n    \"errors\": []\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "APITOKEN",
+			"value": "your-api-token",
+			"type": "string"
+		},
+		{
+			"key": "URL",
+			"value": "http://localhost/api",
+			"type": "string"
+		}
+	]
+}
