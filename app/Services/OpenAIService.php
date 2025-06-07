@@ -130,10 +130,18 @@ class OpenAIService
 
         // Include extracted documents content
         if (!empty($scrapedData['extracted_documents'])) {
-            $prompt .= "**EXTRACTED CV/RESUME CONTENT:**\n";
+            $prompt .= "**EXTRACTED CV/RESUME CONTENT (CONTAINS EXACT WORK EXPERIENCE DATES):**\n";
+            $prompt .= "This CV content contains the most accurate work experience information with exact company names, job titles, and date periods.\n";
+            $prompt .= "Pay special attention to the EXPERIENCE section for date ranges like 'December 2023 - Present'.\n\n";
+
             foreach ($scrapedData['extracted_documents'] as $doc) {
                 $prompt .= "Document: {$doc['original_name']}\n";
-                $prompt .= $doc['content'] . "\n\n";
+                $prompt .= "Content:\n" . $doc['content'] . "\n\n";
+
+                // Extract and highlight experience section if it exists
+                if (stripos($doc['content'], 'EXPERIENCE') !== false) {
+                    $prompt .= "*** WORK EXPERIENCE SECTION IDENTIFIED IN CV - USE THESE EXACT DATES FOR PERIODS ***\n\n";
+                }
             }
         }
 
@@ -222,7 +230,12 @@ class OpenAIService
          $prompt .= "1. Extract the talent's name from the content (look for names in headers, titles, or about sections)\n";
          $prompt .= "2. Identify the main job title/role from the content\n";
          $prompt .= "3. Use the professional description as written in the content (maintain original style)\n";
-         $prompt .= "4. For experiences: Extract ALL work history from CV/Resume with accurate company names, periods, and job types\n";
+         $prompt .= "4. **CRITICAL FOR EXPERIENCES**: Extract ALL work history from CV/Resume content with EXACT dates:\n";
+         $prompt .= "   - Look for date patterns like 'December 2023 - Present', 'March 2022 - December 2023', 'September 2021 - March 2022'\n";
+         $prompt .= "   - Extract company names exactly as written (e.g., 'UP10 Media', 'Gold Cosmetics & Skin Care', 'Marketmen Group')\n";
+         $prompt .= "   - Copy the period EXACTLY from the CV (do NOT abbreviate or change format)\n";
+         $prompt .= "   - If CV shows 'Present', keep it as 'Present' not 'current' or other variations\n";
+         $prompt .= "   - Extract job titles exactly as written (e.g., 'Senior Video editor', 'Video editor', 'Content Creator')\n";
          $prompt .= "5. Include testimonial companies as experiences if mentioned in the portfolio content\n";
          $prompt .= "6. For content_vertical: Analyze the YouTube videos and content to categorize by industry/niche\n";
          $prompt .= "7. For platform_specialties: Identify which platforms they create content for\n";
@@ -233,13 +246,17 @@ class OpenAIService
          $prompt .= "12. Extract location information from CV if available\n";
          $prompt .= "13. If information is not available, use null or appropriate placeholder\n";
          $prompt .= "14. Maintain the exact JSON structure and field names\n";
-         $prompt .= "15. Pay special attention to the CV/Resume content for detailed work experience\n";
-         $prompt .= "16. **CRITICAL**: For views and likes, ALWAYS return INTEGER values, not strings:\n";
+         $prompt .= "15. **PAY SPECIAL ATTENTION**: The CV/Resume content contains the most accurate work experience data with exact dates\n";
+         $prompt .= "16. **EXPERIENCE PERIOD EXAMPLES** from CV format:\n";
+         $prompt .= "    - 'December 2023 - Present' → use exactly as 'December 2023 - Present'\n";
+         $prompt .= "    - 'March 2022 - December 2023' → use exactly as 'March 2022 - December 2023'\n";
+         $prompt .= "    - 'September 2021 - March 2022' → use exactly as 'September 2021 - March 2022'\n";
+         $prompt .= "17. **CRITICAL**: For views and likes, ALWAYS return INTEGER values, not strings:\n";
          $prompt .= "    - Convert '5 million' to 5000000\n";
          $prompt .= "    - Convert '1.2K' to 1200\n";
          $prompt .= "    - Convert '500k' to 500000\n";
          $prompt .= "    - If no data available, use null (not 0)\n";
-         $prompt .= "17. Ensure all numeric fields are actual numbers, not strings\n\n";
+         $prompt .= "18. Ensure all numeric fields are actual numbers, not strings\n\n";
 
         $prompt .= "**IMPORTANT:** Return ONLY the JSON object. Do not include any additional text or explanations.";
 
@@ -396,37 +413,7 @@ class OpenAIService
         return $mappedData;
     }
 
-    /**
-     * Create new ContentTypeValue
-     *
-     * @param int $contentTypeId
-     * @param string $title
-     * @return int|null
-     */
-    private function createContentTypeValue(int $contentTypeId, string $title): ?int
-    {
-        try {
-            $contentTypeValue = ContentTypeValue::create([
-                'content_type_id' => $contentTypeId,
-                'title' => trim($title)
-            ]);
 
-            Log::info('Created new content type value', [
-                'content_type_id' => $contentTypeId,
-                'title' => $title,
-                'id' => $contentTypeValue->id
-            ]);
-
-            return $contentTypeValue->id;
-        } catch (Exception $e) {
-            Log::error('Failed to create content type value', [
-                'content_type_id' => $contentTypeId,
-                'title' => $title,
-                'error' => $e->getMessage()
-            ]);
-            return null;
-        }
-    }
 
     /**
      * Get existing or create new ContentTypeValue

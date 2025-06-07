@@ -178,7 +178,7 @@ class TalentService
                     ->first();
 
                 if (!$contentTypeValue) {
-                    $contentTypeValue = ContentTypeValue::create([
+                    $contentTypeValue = ContentTypeValue::firstOrCreate([
                         'content_type_id' => $contentType->id,
                         'title' => $valueTitle,
                         'icon' => $value['icon'] ?? '',

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('client_logo')->nullable();
             $table->string('job_type')->nullable()->comment('Contract, Full Time, Part Time, Freelance');
             $table->string('period')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

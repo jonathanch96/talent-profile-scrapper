@@ -44,6 +44,9 @@ class UpdateTalentDataJob implements ShouldQueue
             ]);
 
             DB::transaction(function () {
+                // Delete all existing data for the talent
+                $this->deleteExistingData();
+
                 // Update basic talent information
                 $this->updateBasicTalentInfo();
 
@@ -73,6 +76,14 @@ class UpdateTalentDataJob implements ShouldQueue
 
             throw $e;
         }
+    }
+
+    private function deleteExistingData(): void
+    {
+        TalentExperience::where('talent_id', $this->talent->id)->delete();
+        TalentProject::where('talent_id', $this->talent->id)->delete();
+        TalentLanguage::where('talent_id', $this->talent->id)->delete();
+        TalentContent::where('talent_id', $this->talent->id)->delete();
     }
 
     /**
@@ -129,19 +140,49 @@ class UpdateTalentDataJob implements ShouldQueue
             return;
         }
 
-        // Clear existing experiences
+        // Clear existing experiences for this talent
         TalentExperience::where('talent_id', $this->talent->id)->delete();
 
         foreach ($this->processedData['experiences'] as $experienceData) {
-            TalentExperience::create([
-                'talent_id' => $this->talent->id,
-                'client_name' => $experienceData['client_name'] ?? null,
-                'client_sub_title' => $experienceData['client_sub_title'] ?? null,
-                'client_logo' => $experienceData['client_logo'] ?? null,
-                'job_type' => $experienceData['job_type'] ?? null,
-                'period' => $experienceData['period'] ?? null,
-                'description' => $experienceData['description'] ?? null,
-            ]);
+            try {
+                TalentExperience::create([
+                    'talent_id' => $this->talent->id,
+                    'client_name' => $experienceData['client_name'] ?? null,
+                    'client_sub_title' => $experienceData['client_sub_title'] ?? null,
+                    'client_logo' => $experienceData['client_logo'] ?? null,
+                    'job_type' => $experienceData['job_type'] ?? null,
+                    'period' => $experienceData['period'] ?? null,
+                    'description' => $experienceData['description'] ?? null,
+                ]);
+            } catch (\Exception $e) {
+                Log::error("Failed to create experience", [
+                    'talent_id' => $this->talent->id,
+                    'client_name' => $experienceData['client_name'] ?? null,
+                    'error' => $e->getMessage()
+                ]);
+
+                // Try with different approach - check if experience exists globally and clean up
+                if (str_contains($e->getMessage(), 'duplicate key value violates unique constraint')) {
+                    Log::warning("Attempting to resolve primary key conflict", [
+                        'talent_id' => $this->talent->id
+                    ]);
+
+                    // Use a more robust approach - insert with explicit NULL id to let DB auto-assign
+                    DB::table('talent_experiences')->insert([
+                        'talent_id' => $this->talent->id,
+                        'client_name' => $experienceData['client_name'] ?? null,
+                        'client_sub_title' => $experienceData['client_sub_title'] ?? null,
+                        'client_logo' => $experienceData['client_logo'] ?? null,
+                        'job_type' => $experienceData['job_type'] ?? null,
+                        'period' => $experienceData['period'] ?? null,
+                        'description' => $experienceData['description'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    throw $e;
+                }
+            }
         }
 
         Log::info("Updated experiences", ['count' => count($this->processedData['experiences'])]);

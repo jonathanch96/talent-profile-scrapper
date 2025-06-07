@@ -6,6 +6,7 @@ use App\Models\Talent;
 use App\Models\TalentScrapingResult;
 use App\Models\TalentDocument;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class DocumentProcessingService
@@ -66,23 +67,48 @@ class DocumentProcessingService
                 if ($this->downloadService->downloadDocument($document)) {
                     Log::info("Document downloaded successfully", ['document_id' => $document->id]);
 
-                    // Extract content from the downloaded document
-                    if ($this->extractorService->extractContent($document)) {
-                        Log::info("Content extracted successfully", [
+                    // First, check if there's already an extracted text file from command-line processing
+                    $extractedContent = $this->tryGetExistingExtractedContent($document, $documentsDir);
+
+                    if ($extractedContent) {
+                        Log::info("Using existing extracted content", [
                             'document_id' => $document->id,
-                            'content_length' => strlen($document->fresh()->extracted_content ?? '')
+                            'content_length' => strlen($extractedContent)
+                        ]);
+
+                        // Update document with the clean extracted content
+                        $document->update([
+                            'extraction_status' => 'completed',
+                            'extracted_content' => $extractedContent,
                         ]);
 
                         $processedDocuments[] = [
                             'document_id' => $document->id,
                             'filename' => $document->filename,
                             'original_name' => $linkData['text'],
-                            'content' => $document->fresh()->extracted_content,
-                            'content_length' => strlen($document->fresh()->extracted_content ?? ''),
+                            'content' => $extractedContent,
+                            'content_length' => strlen($extractedContent),
                             'type' => 'extracted_text'
                         ];
                     } else {
-                        Log::warning("Content extraction failed", ['document_id' => $document->id]);
+                        // Fallback to extraction service if no pre-extracted content exists
+                        if ($this->extractorService->extractContent($document)) {
+                            Log::info("Content extracted successfully", [
+                                'document_id' => $document->id,
+                                'content_length' => strlen($document->fresh()->extracted_content ?? '')
+                            ]);
+
+                            $processedDocuments[] = [
+                                'document_id' => $document->id,
+                                'filename' => $document->filename,
+                                'original_name' => $linkData['text'],
+                                'content' => $document->fresh()->extracted_content,
+                                'content_length' => strlen($document->fresh()->extracted_content ?? ''),
+                                'type' => 'extracted_text'
+                            ];
+                        } else {
+                            Log::warning("Content extraction failed", ['document_id' => $document->id]);
+                        }
                     }
                 } else {
                     Log::warning("Document download failed", ['document_id' => $document->id]);
@@ -104,6 +130,69 @@ class DocumentProcessingService
         ]);
 
         return $processedDocuments;
+    }
+
+    /**
+     * Try to get existing extracted content from command-line processing
+     */
+    protected function tryGetExistingExtractedContent(TalentDocument $document, ?string $documentsDir = null): ?string
+    {
+        if (!$document->file_path) {
+            return null;
+        }
+
+        // Get the directory where the document is stored
+        $documentPath = $document->file_path;
+        $pathInfo = pathinfo($documentPath);
+        $directory = $pathInfo['dirname'];
+        $filename = $pathInfo['filename'];
+        $extension = $pathInfo['extension'];
+
+        // Look for extracted files with common patterns
+        $extractedPatterns = [
+            // Pattern 1: filename_extracted.txt (most common from command-line)
+            $directory . '/' . $filename . '_extracted.txt',
+            // Pattern 2: filename.txt
+            $directory . '/' . $filename . '.txt',
+            // Pattern 3: In case it's in a subdirectory
+            $directory . '/documents/' . $filename . '_extracted.txt',
+            $directory . '/scraped-data/documents/' . $filename . '_extracted.txt',
+        ];
+
+        // Also check if we're in a custom documents directory
+        if ($documentsDir) {
+            $baseFilename = basename($filename);
+            $extractedPatterns[] = $documentsDir . '/' . $baseFilename . '_extracted.txt';
+            $extractedPatterns[] = str_replace('/documents/', '/scraped-data/documents/', $documentsDir) . '/' . $baseFilename . '_extracted.txt';
+        }
+
+        foreach ($extractedPatterns as $pattern) {
+            try {
+                if (Storage::exists($pattern)) {
+                    $content = Storage::get($pattern);
+                    if (!empty(trim($content))) {
+                        Log::info("Found existing extracted content", [
+                            'document_id' => $document->id,
+                            'extracted_file' => $pattern,
+                            'content_length' => strlen($content)
+                        ]);
+                        return $content;
+                    }
+                }
+            } catch (Exception $e) {
+                Log::debug("Failed to read extracted file", [
+                    'pattern' => $pattern,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        Log::debug("No existing extracted content found", [
+            'document_id' => $document->id,
+            'checked_patterns' => $extractedPatterns
+        ]);
+
+        return null;
     }
 
     /**
