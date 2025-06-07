@@ -33,7 +33,7 @@ class TalentService
             return $this->searchTalentsUsingLLM($searchUsingLlm, $perPage);
         }
 
-        return Talent::select(['id', 'name', 'username'])
+        return Talent::with(['experiences', 'projects', 'contents.contentType', 'contents.contentTypeValue'])
             ->paginate($perPage);
     }
 
@@ -78,19 +78,21 @@ class TalentService
                 ->take($perPage)
                 ->values();
 
-            // Step 6: Create pagination
+            // Step 6: Create pagination with collection that preserves arrays
             $currentPage = 1;
             $total = count($rankedResults);
 
+            // Convert to a simple collection to prevent auto-wrapping
+            $talentCollection = collect($sortedTalents->toArray());
+
             return new LengthAwarePaginator(
-                $sortedTalents,
+                $talentCollection,
                 $total,
                 $perPage,
                 $currentPage,
                 ['path' => request()->url(), 'pageName' => 'page']
             );
-
-                } catch (Exception $e) {
+        } catch (Exception $e) {
             Log::error('LLM search failed', [
                 'query' => $searchQuery,
                 'error' => $e->getMessage(),
@@ -120,7 +122,7 @@ class TalentService
                 LIMIT ?
             ", [$embeddingString, $embeddingString, $limit]);
 
-            $processedResults = array_map(function($result) {
+            $processedResults = array_map(function ($result) {
                 return [
                     'id' => $result->id,
                     'username' => $result->username,
@@ -132,7 +134,6 @@ class TalentService
             }, $results);
 
             return $processedResults;
-
         } catch (Exception $e) {
             Log::error('Vector search failed', [
                 'error' => $e->getMessage(),
@@ -178,7 +179,15 @@ class TalentService
 
         // Update main talent fields
         $talentFields = array_intersect_key($data, array_flip([
-            'name', 'job_title', 'description', 'image', 'location', 'timezone', 'talent_status', 'availability','website_url'
+            'name',
+            'job_title',
+            'description',
+            'image',
+            'location',
+            'timezone',
+            'talent_status',
+            'availability',
+            'website_url'
         ]));
 
         if (!empty($talentFields)) {

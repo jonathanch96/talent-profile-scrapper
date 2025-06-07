@@ -42,17 +42,17 @@ class TalentController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-                try {
+                                try {
             $perPage = $request->get('per_page', 10);
             $searchUsingLlm = $request->get('search_using_llm');
 
             $talents = $this->talentService->getAllTalents($perPage, $searchUsingLlm);
 
-            // For LLM search results, return custom format
+            // For LLM search results, return the same structure as TalentCollection
             if ($searchUsingLlm && $talents->count() > 0) {
                 $firstItem = $talents->first();
                 if (is_array($firstItem)) {
-                    // This is LLM search results - return custom format
+                    // This is LLM search results - return same structure as TalentCollection
                     return response()->json([
                         'success' => true,
                         'data' => $talents->items(),
