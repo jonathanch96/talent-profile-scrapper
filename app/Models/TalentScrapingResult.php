@@ -30,4 +30,9 @@ class TalentScrapingResult extends Model
     {
         return $this->belongsTo(Talent::class);
     }
+
+    public function documents()
+    {
+        return $this->hasMany(TalentDocument::class, 'scraping_result_id');
+    }
 }

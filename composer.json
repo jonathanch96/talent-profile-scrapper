@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "openai-php/client": "^0.13.0",
+        "smalot/pdfparser": "^2.12",
         "spatie/browsershot": "^5.0",
         "symfony/dom-crawler": "^7.3"
     },

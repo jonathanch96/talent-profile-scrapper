@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Talent;
 use App\Models\TalentScrapingResult;
+use App\Services\DocumentDownloadService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -68,22 +69,41 @@ class ScrapePortfolioJob implements ShouldQueue
                 '--output' => $filePath,
             ]);
 
-            if ($exitCode === 0 && file_exists($filePath)) {
-                // Update scraping result with file path
+                        if ($exitCode === 0 && file_exists($filePath)) {
+                // Load and analyze scraped data for documents
+                $scrapedData = json_decode(file_get_contents($filePath), true);
+
+                // Extract downloadable links
+                $downloadService = new DocumentDownloadService();
+                $downloadableLinks = $downloadService->extractDownloadableLinks($scrapedData);
+
+                // Update scraping result with file path and document info
                 $scrapingResult->update([
                     'scraped_data_path' => $filename,
                     'status' => 'completed',
                     'metadata' => [
                         'file_size' => filesize($filePath),
                         'scraped_at' => now()->toDateTimeString(),
+                        'downloadable_links_found' => count($downloadableLinks),
+                        'downloadable_links' => $downloadableLinks,
                     ]
                 ]);
 
-                // Update talent status and dispatch next job
+                // Update talent status and dispatch next jobs
                 $this->talent->update(['scraping_status' => 'processing_with_llm']);
 
                 // Dispatch job to process scraped data with LLM
                 ProcessScrapedTalentJob::dispatch($this->talent, $scrapingResult);
+
+                // Dispatch job to process documents if any found
+                if (!empty($downloadableLinks)) {
+                    Log::info("Found downloadable documents, dispatching document processing job", [
+                        'talent_id' => $this->talent->id,
+                        'document_count' => count($downloadableLinks)
+                    ]);
+
+                    ProcessDocumentsJob::dispatch($this->talent, $scrapingResult, $downloadableLinks);
+                }
 
                 Log::info("Portfolio scraping completed for talent: {$this->talent->username}");
             } else {

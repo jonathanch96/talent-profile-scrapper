@@ -67,6 +67,14 @@ class ProcessScrapedTalentCommand extends Command
 
             $this->info("📊 Loaded scraped data from: " . ($scrapedData['url'] ?? 'Unknown URL'));
 
+            // Load extracted documents text if available
+            $documentsData = $this->loadExtractedDocuments($filePath);
+            if (!empty($documentsData)) {
+                $this->info("📄 Found {" . count($documentsData) . "} extracted document(s)");
+                // Add documents data to scraped data
+                $scrapedData['extracted_documents'] = $documentsData;
+            }
+
             // Process with AI
             $this->line("🔄 Sending data to OpenAI for processing...");
             $processedData = $this->openAIService->processTalentPortfolio($scrapedData);
@@ -81,9 +89,11 @@ class ProcessScrapedTalentCommand extends Command
                 $outputData = [
                     'original_url' => $scrapedData['url'] ?? 'Unknown',
                     'processed_at' => now()->toISOString(),
+                    'included_documents' => $documentsData ?? [],
                     'extracted_data' => $processedData
                 ];
 
+                Storage::makeDirectory(dirname($outputPath));
                 Storage::put($outputPath, json_encode($outputData, JSON_PRETTY_PRINT));
                 $this->info("💾 Processed data saved to: " . storage_path("app/{$outputPath}"));
             }
@@ -111,6 +121,55 @@ class ProcessScrapedTalentCommand extends Command
     }
 
     /**
+     * Load extracted documents text from the same directory structure
+     */
+    private function loadExtractedDocuments(string $scrapedFilePath): array
+    {
+        $documentsData = [];
+
+        // Get the directory of the scraped file
+        $baseDir = dirname($scrapedFilePath);
+        $documentsDir = $baseDir . '/documents';
+
+        // Check if documents directory exists
+        if (!Storage::exists($documentsDir)) {
+            return $documentsData;
+        }
+
+        // Get all files in the documents directory
+        $files = Storage::files($documentsDir);
+
+        foreach ($files as $file) {
+            // Only process extracted text files
+            if (strpos($file, '_extracted.txt') !== false) {
+                try {
+                    $content = Storage::get($file);
+                    $filename = basename($file);
+
+                    // Extract original document name
+                    $originalName = str_replace('_extracted.txt', '', $filename);
+
+                    $documentsData[] = [
+                        'filename' => $filename,
+                        'original_name' => $originalName,
+                        'file_path' => $file,
+                        'content' => $content,
+                        'content_length' => strlen($content),
+                        'type' => 'extracted_text'
+                    ];
+
+                    $this->line("  📄 Loaded: {$originalName} ({" . strlen($content) . "} chars)");
+
+                } catch (Exception $e) {
+                    $this->warn("  ⚠️  Could not load: {$file}");
+                }
+            }
+        }
+
+        return $documentsData;
+    }
+
+    /**
      * Display the processed data in a readable format
      */
     private function displayProcessedData(array $data): void
@@ -118,6 +177,15 @@ class ProcessScrapedTalentCommand extends Command
         $this->line("");
         $this->line("🎯 <fg=cyan>EXTRACTED TALENT INFORMATION</>");
         $this->line(str_repeat("=", 50));
+
+        // Show if documents were included
+        if (!empty($data['extracted_documents_info'])) {
+            $this->line("<fg=green>📄 Included extracted documents in AI processing</>");
+            foreach ($data['extracted_documents_info'] as $doc) {
+                $this->line("  • {$doc['original_name']} ({$doc['content_length']} chars)");
+            }
+            $this->line("");
+        }
 
         // Talent basic info
         if (!empty($data['talent'])) {

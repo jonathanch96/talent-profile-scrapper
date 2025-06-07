@@ -91,7 +91,16 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
         }
 
         // Load relationships for embedding
-        $this->talent->load(['experiences', 'projects', 'contents.contentType', 'contents.contentTypeValue']);
+        $this->talent->load([
+            'experiences',
+            'projects',
+            'contents.contentType',
+            'contents.contentTypeValue',
+            'documents' => function($query) {
+                $query->where('extraction_status', 'completed')
+                      ->whereNotNull('extracted_content');
+            }
+        ]);
 
         // Experiences
         foreach ($this->talent->experiences as $experience) {
@@ -134,6 +143,15 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
 
         foreach ($contentGroups as $type => $values) {
             $textParts[] = "{$type}: " . implode(', ', $values);
+        }
+
+        // Documents content
+        foreach ($this->talent->documents as $document) {
+            if (!empty($document->extracted_content)) {
+                // Limit document content to avoid token limits
+                $documentContent = substr($document->extracted_content, 0, 2000);
+                $textParts[] = "Document ({$document->source_link_text}): " . $documentContent;
+            }
         }
 
         return implode('. ', $textParts);

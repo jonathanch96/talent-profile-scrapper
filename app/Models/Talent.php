@@ -79,4 +79,9 @@ class Talent extends Model
     {
         return $this->hasMany(TalentScrapingResult::class);
     }
+
+    public function documents()
+    {
+        return $this->hasMany(TalentDocument::class);
+    }
 }
