@@ -11,7 +11,7 @@ use Exception;
 class DocumentDownloadService
 {
     protected int $timeout = 120;
-    protected int $maxFileSize = 50 * 1024 * 1024; // 50MB max
+    protected int $maxFileSize = 10 * 1024 * 1024; // 10MB max (reduced for memory safety)
     protected ?string $customDocumentsDirectory = null;
 
     /**

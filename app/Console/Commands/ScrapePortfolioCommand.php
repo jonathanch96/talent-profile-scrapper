@@ -30,7 +30,7 @@ class ScrapePortfolioCommand extends Command
 
     protected PuppeteerScrapperService $scraper;
     protected int $timeout = 120;
-    protected int $maxFileSize = 50 * 1024 * 1024; // 50MB max
+    protected int $maxFileSize = 10 * 1024 * 1024; // 10MB max (reduced for memory safety)
 
     public function __construct(PuppeteerScrapperService $scraper)
     {
@@ -373,23 +373,58 @@ class ScrapePortfolioCommand extends Command
     }
 
     /**
-     * Extract text from PDF using smalot/pdfparser
+     * Extract text from PDF using smalot/pdfparser with memory management
      */
     protected function extractTextFromPDF(string $content): string
     {
+        // Check file size first to avoid memory issues
+        $sizeInMB = strlen($content) / (1024 * 1024);
+        if ($sizeInMB > 10) {
+            throw new Exception("PDF too large for processing: {$sizeInMB}MB (max 10MB)");
+        }
+
+        // Temporarily increase memory limit for PDF processing
+        $originalMemoryLimit = ini_get('memory_limit');
+        $currentMemoryUsage = memory_get_usage(true) / (1024 * 1024);
+        $requiredMemory = max(256, $currentMemoryUsage + ($sizeInMB * 8)); // Estimate memory needed
+
+        ini_set('memory_limit', $requiredMemory . 'M');
+
         try {
             $parser = new PdfParser();
-            $pdf = $parser->parseContent($content);
+
+            // Configure parser for memory efficiency
+            $config = [
+                'ignore_filter_decoding_errors' => true,
+                'ignore_missing_filter_decoders' => true,
+            ];
+
+            $pdf = $parser->parseContent($content, $config);
             $text = $pdf->getText();
 
             if (empty(trim($text))) {
                 throw new Exception("PDF text extraction returned empty result");
             }
 
+            // Clean up memory
+            unset($pdf, $parser);
+            gc_collect_cycles();
+
             return $text;
 
         } catch (Exception $e) {
-            throw new Exception("PDF text extraction failed: " . $e->getMessage());
+            $errorMsg = $e->getMessage();
+
+            // Check if it's a memory error
+            if (strpos($errorMsg, 'memory') !== false || strpos($errorMsg, 'exhausted') !== false) {
+                throw new Exception("PDF too complex for memory-limited processing. Try a simpler PDF or increase server memory.");
+            }
+
+            throw new Exception("PDF text extraction failed: " . $errorMsg);
+
+        } finally {
+            // Always restore original memory limit
+            ini_set('memory_limit', $originalMemoryLimit);
         }
     }
 

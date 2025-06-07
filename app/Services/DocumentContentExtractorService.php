@@ -55,14 +55,22 @@ class DocumentContentExtractorService
             return true;
 
         } catch (Exception $e) {
+            $errorMsg = $e->getMessage();
+
+            // Check if it's a memory-related error
+            if (strpos($errorMsg, 'memory') !== false || strpos($errorMsg, 'exhausted') !== false) {
+                $errorMsg = "Document too large/complex for processing - memory limit exceeded. Try a smaller or simpler document.";
+            }
+
             Log::error("Content extraction failed", [
                 'document_id' => $document->id,
-                'error' => $e->getMessage()
+                'error' => $errorMsg,
+                'file_size' => $document->file_size ?? 'unknown'
             ]);
 
             $document->update([
                 'extraction_status' => 'failed',
-                'error_message' => $e->getMessage()
+                'error_message' => $errorMsg
             ]);
 
             return false;
@@ -121,17 +129,38 @@ class DocumentContentExtractorService
     }
 
     /**
-     * Basic PDF text extraction using PHP
+     * Basic PDF text extraction using PHP with memory management
      */
     protected function extractFromPDFBasic(string $filePath): string
     {
         try {
+            // Check file size first
+            $fileSize = filesize($filePath);
+            $sizeInMB = $fileSize / (1024 * 1024);
+
+            if ($sizeInMB > 10) {
+                throw new Exception("PDF too large for basic processing: {$sizeInMB}MB (max 10MB)");
+            }
+
+            // Temporarily increase memory limit
+            $originalMemoryLimit = ini_get('memory_limit');
+            $currentMemoryUsage = memory_get_usage(true) / (1024 * 1024);
+            $requiredMemory = max(256, $currentMemoryUsage + ($sizeInMB * 8));
+
+            ini_set('memory_limit', $requiredMemory . 'M');
+
             $content = file_get_contents($filePath);
+            if ($content === false) {
+                throw new Exception('Could not read PDF file');
+            }
 
             // Very basic PDF text extraction
             // This won't work for all PDFs but can handle simple ones
             if (preg_match_all('/\((.*?)\)/', $content, $matches)) {
-                return implode(' ', $matches[1]);
+                $result = implode(' ', $matches[1]);
+                if (!empty(trim($result))) {
+                    return $result;
+                }
             }
 
             // Try to extract text between stream objects
@@ -154,10 +183,29 @@ class DocumentContentExtractorService
                 }
             }
 
-            throw new Exception('Basic PDF extraction failed');
+            throw new Exception('Basic PDF extraction failed - no readable content found');
 
         } catch (Exception $e) {
-            throw new Exception("PDF extraction failed: " . $e->getMessage());
+            $errorMsg = $e->getMessage();
+
+            // Check if it's a memory error
+            if (strpos($errorMsg, 'memory') !== false || strpos($errorMsg, 'exhausted') !== false) {
+                throw new Exception("PDF too complex for memory-limited processing. File size: {$sizeInMB}MB");
+            }
+
+            throw new Exception("PDF extraction failed: " . $errorMsg);
+
+        } finally {
+            // Always restore original memory limit
+            if (isset($originalMemoryLimit)) {
+                ini_set('memory_limit', $originalMemoryLimit);
+            }
+
+            // Clean up memory
+            if (isset($content)) {
+                unset($content);
+            }
+            gc_collect_cycles();
         }
     }
 
