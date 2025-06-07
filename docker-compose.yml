@@ -87,8 +87,8 @@ services:
         image: nginx:1.17-alpine
         container_name: talent-profile-scrapper-nginx
         ports:
-        - 80:80
-        - 443:443
+        - 8080:80
+        - 8443:443
         volumes:
         - ./:/var/www/html
         - ./docker/nginx/sites-enabled:/etc/nginx/conf.d
