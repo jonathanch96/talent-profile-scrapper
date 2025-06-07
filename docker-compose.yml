@@ -54,7 +54,6 @@ services:
             POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
         volumes:
             - "talent-profile-scrapper-pgsql:/var/lib/postgresql/data"
-            - "./vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql"
         networks:
             - talent-profile-scrapper
         healthcheck:
