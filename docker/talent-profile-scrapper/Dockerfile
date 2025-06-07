@@ -51,6 +51,7 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
 
 RUN chown -R $user:$user /var/www/html/storage /var/www/html/bootstrap/cache
 
+RUN chmod -R 775 vendor storage bootstrap/cache
 
 # Switch to non-root user
 USER $user
