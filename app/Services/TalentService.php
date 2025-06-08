@@ -9,6 +9,7 @@ use App\Models\TalentProject;
 use App\Models\TalentContent;
 use App\Models\ContentType;
 use App\Models\ContentTypeValue;
+use App\Services\AiAgentService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +18,11 @@ use Exception;
 
 class TalentService
 {
-    protected OpenAIService $openAIService;
+    protected AiAgentService $aiAgentService;
 
-    public function __construct(OpenAIService $openAIService)
+    public function __construct(AiAgentService $aiAgentService)
     {
-        $this->openAIService = $openAIService;
+        $this->aiAgentService = $aiAgentService;
     }
 
     /**
@@ -44,7 +45,7 @@ class TalentService
     {
         try {
             // Step 1: Generate embedding for the search query
-            $queryEmbedding = $this->openAIService->generateEmbedding($searchQuery);
+            $queryEmbedding = $this->aiAgentService->generateEmbedding($searchQuery);
 
             if (!$queryEmbedding) {
                 Log::warning('Failed to generate embedding for search query', ['query' => $searchQuery]);
@@ -70,7 +71,7 @@ class TalentService
             ])->whereIn('id', $talentIds)->get();
 
             // Step 4: Rank results using LLM
-            $rankedResults = $this->openAIService->rankTalentsUsingLLM($searchQuery, $talents);
+            $rankedResults = $this->aiAgentService->rankTalentsUsingLLM($searchQuery, $talents);
 
             // Step 5: Sort by ranking and paginate
             $sortedTalents = collect($rankedResults)

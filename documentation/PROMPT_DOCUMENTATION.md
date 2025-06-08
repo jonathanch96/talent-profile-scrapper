@@ -327,3 +327,17 @@ Example payload:
     ]
 }
 ```
+
+---
+
+-prompt: Refactor the OpenAIService by extracting all prompt-handling logic into a separate AiAgentService.
+
+AiAgentService will be responsible for managing prompt templates, formatting, and orchestration logic.
+
+Other model services like OpenAIService, GeminiService, or ClaudeService will be passed into AiAgentService as dependencies, allowing for flexible model injection.
+
+For now, only OpenAIService will be available, but the architecture should be designed to support easily swapping in other LLM providers.
+
+The model-specific services (e.g., OpenAI, Gemini, Claude) will not manage prompt logic themselves — they will only act as execution engines.
+
+All external callers will use AiAgentService to interact with LLMs, passing in the desired model service (defaulting to OpenAIService for now).

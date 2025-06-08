@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Talent;
-use App\Services\OpenAIService;
+use App\Services\AiAgentService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,9 +41,9 @@ class UpdateVectorEmbeddingJob implements ShouldQueue
                 return;
             }
 
-            // Use OpenAI service to generate embeddings
-            $openAIService = new OpenAIService();
-            $embedding = $openAIService->generateEmbedding($textData);
+            // Use AI Agent service to generate embeddings
+            $aiAgentService = new AiAgentService();
+            $embedding = $aiAgentService->generateEmbedding($textData);
 
             if ($embedding) {
                 // Update talent with new vector embedding

@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Talent;
 use App\Models\TalentScrapingResult;
-use App\Services\OpenAIService;
+use App\Services\AiAgentService;
 use App\Services\DocumentProcessingService;
 use App\Jobs\UpdateTalentDataJob;
 use Illuminate\Bus\Queueable;
@@ -70,9 +70,9 @@ class ProcessScrapedTalentJob implements ShouldQueue
                 }
             }
 
-            // Process with OpenAI
-            $openAIService = new OpenAIService();
-            $processedData = $openAIService->processTalentPortfolio($scrapedData);
+            // Process with AI Agent
+            $aiAgentService = new AiAgentService();
+            $processedData = $aiAgentService->processTalentPortfolio($scrapedData);
 
             // Use the new processed data directory if provided, otherwise use the old structure
             if (!empty($this->folderStructure['processed_data_dir'])) {

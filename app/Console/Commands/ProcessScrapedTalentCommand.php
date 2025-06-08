@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\OpenAIService;
+use App\Services\AiAgentService;
 use App\Models\Talent;
 use App\Models\TalentContent;
 use App\Models\TalentExperience;
@@ -33,13 +33,13 @@ class ProcessScrapedTalentCommand extends Command
      */
     protected $description = 'Process scraped portfolio data using AI to extract talent information and optionally save to database';
 
-    protected OpenAIService $openAIService;
+    protected AiAgentService $aiAgentService;
     protected DocumentProcessingService $documentService;
 
-    public function __construct(OpenAIService $openAIService)
+    public function __construct(AiAgentService $aiAgentService)
     {
         parent::__construct();
-        $this->openAIService = $openAIService;
+        $this->aiAgentService = $aiAgentService;
         $this->documentService = new DocumentProcessingService();
     }
 
@@ -115,7 +115,7 @@ class ProcessScrapedTalentCommand extends Command
 
             // Process with AI
             $this->line("🔄 Sending data to OpenAI for processing...");
-            $processedData = $this->openAIService->processTalentPortfolio($scrapedData);
+            $processedData = $this->aiAgentService->processTalentPortfolio($scrapedData);
 
             $this->info("✅ AI processing completed!");
 
