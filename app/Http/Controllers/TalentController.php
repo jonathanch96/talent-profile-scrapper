@@ -42,7 +42,7 @@ class TalentController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-                                try {
+        try {
             $perPage = $request->get('per_page', 10);
             $searchUsingLlm = $request->get('search_using_llm');
 
