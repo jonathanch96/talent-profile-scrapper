@@ -35,6 +35,14 @@ class TalentCollection extends ResourceCollection
                             ];
                         });
                     }),
+                    'languages' => $talent->when($talent->relationLoaded('languages'), function () use ($talent) {
+                        return $talent->languages->map(function ($language) {
+                            return [
+                                'language' => $language->language->name,
+                                'level' => $language->level,
+                            ];
+                        });
+                    }),
                     'projects' => $talent->when($talent->relationLoaded('projects'), function () use ($talent) {
                         return $talent->projects->map(function ($project) {
                             return [

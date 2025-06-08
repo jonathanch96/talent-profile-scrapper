@@ -31,6 +31,14 @@ class TalentResource extends JsonResource
                     ];
                 });
             }),
+            'languages' => $this->when($this->relationLoaded('languages'), function () {
+                return $this->languages->map(function ($language) {
+                    return [
+                        'language' => $language->language->name,
+                        'level' => $language->level,
+                    ];
+                });
+            }),
             'projects' => $this->when($this->relationLoaded('projects'), function () {
                 return $this->projects->map(function ($project) {
                     return [

@@ -34,7 +34,7 @@ class TalentService
             return $this->searchTalentsUsingLLM($searchUsingLlm, $perPage);
         }
 
-        return Talent::with(['experiences', 'projects', 'contents.contentType', 'contents.contentTypeValue'])
+        return Talent::with(['experiences', 'projects', 'contents.contentType', 'contents.contentTypeValue', 'languages'])
             ->paginate($perPage);
     }
 
@@ -67,7 +67,8 @@ class TalentService
                 'experiences',
                 'projects',
                 'contents.contentType',
-                'contents.contentTypeValue'
+                'contents.contentTypeValue',
+                'languages'
             ])->whereIn('id', $talentIds)->get();
 
             // Step 4: Rank results using LLM
@@ -156,7 +157,8 @@ class TalentService
                 'experiences',
                 'projects',
                 'contents.contentType',
-                'contents.contentTypeValue'
+                'contents.contentTypeValue',
+                'languages'
             ])
             ->first();
 
