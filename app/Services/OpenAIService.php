@@ -202,6 +202,7 @@ class OpenAIService
         $prompt .= "    {\n";
         $prompt .= "      \"project_roles\": [\"Video Editor\", \"Script Writer\"],\n";
         $prompt .= "      \"title\": \"Project title from content\",\n";
+        $prompt .= "      \"link\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n";
         $prompt .= "      \"views\": 5000000,\n";
         $prompt .= "      \"likes\": 50000,\n";
         $prompt .= "      \"image\": \"Project thumbnail/image URL if found\"\n";

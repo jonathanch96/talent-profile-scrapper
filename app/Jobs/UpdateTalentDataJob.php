@@ -220,6 +220,7 @@ class UpdateTalentDataJob implements ShouldQueue
                 'views' => $this->ensureInteger($projectData['views'] ?? null),
                 'likes' => $this->ensureInteger($projectData['likes'] ?? null),
                 'project_roles' => $projectData['project_roles'] ?? null,
+                'link' => $projectData['link'] ?? null,
             ]);
         }
 
